@@ -1,26 +1,29 @@
-from PyQt5.QtCore import QRectF, QPointF, QTimer
+from PyQt5.QtCore import QRect, QRectF, QPoint, QTimer, QSize
 from PyQt5.QtGui import QColor, QPainter, QBrush, QPen
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QGraphicsScene, QGraphicsView, QPushButton, QGraphicsEllipseItem,
                              QGraphicsDropShadowEffect)
 
 from ui.pulse_wave import PulseWave
 from ui.flow_line import FlowLine
+from ui.dialog_window import AnimatedDialog
 
 
 class Pipeline(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("NoIT")
-        self.setFixedSize(740, 320)
+        self.setFixedSize(2000, 1500)
 
         layout = QVBoxLayout(self)
-        self.scene = QGraphicsScene(0, 0, 740, 280)
+        self.scene = QGraphicsScene(0, 0, 2000, 1460)
         self.scene.setBackgroundBrush(QColor(22, 22, 35))
         self.view = QGraphicsView(self.scene)
         self.view.setRenderHint(QPainter.Antialiasing)
         self.node_radius = 30
         layout.addWidget(self.view)
 
+        self.node_start_x = 200
+        self.node_step = 200
         self.steps = []
         self.flows = []
         self.pulse_wave = None
@@ -28,9 +31,10 @@ class Pipeline(QWidget):
         self.activated_first = False
         self.fade_step = 0
         self.fade_timer = QTimer()
+        self.dialog = AnimatedDialog()
 
         for i in range(5):
-            node = self.create_node(100 + i * 110, 110)
+            node = self.create_node(self.node_start_x + i * self.node_step, self.geometry().height() // 2)
             self.scene.addItem(node)
             self.steps.append(node)
             node.setVisible(False)
@@ -69,6 +73,11 @@ class Pipeline(QWidget):
         center = node.sceneBoundingRect().center()
         self.pulse_wave = PulseWave(self.scene, center)
 
+        self.dialog = AnimatedDialog(self, "Detected 12 duplicates. Delete them?", QSize(400, 200),
+                                     QPoint(self.steps[self.current].x(),
+                                            self.steps[self.current].y() - self.node_radius))
+        self.dialog.show_animated()
+
     def set_node_complete(self, node):
         color = QColor(190, 255, 180, 40)
         node.setBrush(QBrush(color))
@@ -92,7 +101,7 @@ class Pipeline(QWidget):
                 self.next_btn.setEnabled(True)
 
         if not self.activated_first:
-            entry = QPointF(-80, self.steps[0].sceneBoundingRect().center().y())
+            entry = QPoint(-80, self.steps[0].sceneBoundingRect().center().y())
             target = self.steps[0].sceneBoundingRect().center()
             target.setX(target.x() - self.node_radius)
             self.current += 1
