@@ -1,15 +1,15 @@
 from PyQt5.QtCore import Qt, QTimer, QSequentialAnimationGroup, QRect, QPropertyAnimation, QEasingCurve, QPoint, QSize
-from PyQt5.QtWidgets import QDialog, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, QDialogButtonBox
+from PyQt5.QtWidgets import QDialog, QLabel, QVBoxLayout, QDialogButtonBox
 
 
 class AnimatedDialog(QDialog):
-    def __init__(self, parent=None, text="", size=QSize(400, 200), pos=QPoint(0, 0)):
+    def __init__(self, parent=None, text='', size=QSize(400, 200), pos=QPoint(0, 0)):
         super().__init__(parent)
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
         self.setStyleSheet("""
-background-color: rgba(20, 40, 80, 160);            /* тёмно-синий фон с прозрачностью */
-    border: 1px solid rgba(255, 255, 255, 70);           /* светлая окантовка */
-    border-radius: 12px;
+            background-color: rgba(20, 40, 80, 160);
+            border: 1px solid rgba(255, 255, 255, 70);
+            border-radius: 12px;
         """)
         if parent:
             self.initial_pos = QPoint(parent.pos().x() + pos.x(), parent.pos().y() + pos.y())
@@ -19,7 +19,7 @@ background-color: rgba(20, 40, 80, 160);            /* тёмно-синий ф�
         self.text = text
         self.label = QLabel()
         self.label.setWordWrap(True)
-        self.label.setStyleSheet("color: white;")
+        self.label.setStyleSheet('color: white;')
         self.typing_index = 0
         self.typing_timer = QTimer()
         self.sequence = QSequentialAnimationGroup()
@@ -39,8 +39,8 @@ background-color: rgba(20, 40, 80, 160);            /* тёмно-синий ф�
         self.button_box.setEnabled(False)
         self.button_box.button(QDialogButtonBox.Yes).setFixedSize(60, 40)
         self.button_box.button(QDialogButtonBox.No).setFixedSize(60, 40)
-        self.button_box.button(QDialogButtonBox.Yes).setStyleSheet("color: white;")
-        self.button_box.button(QDialogButtonBox.No).setStyleSheet("color: white;")
+        self.button_box.button(QDialogButtonBox.Yes).setStyleSheet('color: white;')
+        self.button_box.button(QDialogButtonBox.No).setStyleSheet('color: white;')
 
     def show_animated(self):
         start_w, start_h = 20, 20
@@ -56,13 +56,13 @@ background-color: rgba(20, 40, 80, 160);            /* тёмно-синий ф�
         self.setGeometry(start_rect)
         self.show()
 
-        anim_up = QPropertyAnimation(self, b"geometry")
+        anim_up = QPropertyAnimation(self, b'geometry')
         anim_up.setDuration(400)
         anim_up.setStartValue(start_rect)
         anim_up.setEndValue(mid_rect)
         anim_up.setEasingCurve(QEasingCurve.InOutQuad)
 
-        anim_right = QPropertyAnimation(self, b"geometry")
+        anim_right = QPropertyAnimation(self, b'geometry')
         anim_right.setDuration(400)
         anim_right.setStartValue(mid_rect)
         anim_right.setEndValue(final_rect)
@@ -74,7 +74,7 @@ background-color: rgba(20, 40, 80, 160);            /* тёмно-синий ф�
         self.sequence.start()
 
     def start_typing_effect(self):
-        self.label.setText("")
+        self.label.setText('')
 
         def type_next():
             if self.typing_index >= len(self.text):

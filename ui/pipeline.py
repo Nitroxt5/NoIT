@@ -11,7 +11,7 @@ from ui.dialog_window import AnimatedDialog
 class Pipeline(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("NoIT")
+        self.setWindowTitle('NoIT')
         self.setFixedSize(2000, 1500)
 
         layout = QVBoxLayout(self)
@@ -69,7 +69,7 @@ class Pipeline(QWidget):
         center = node.sceneBoundingRect().center()
         self.pulse_wave = PulseWave(self.scene, center)
 
-        self.create_yes_no_dialog_window("Detected 12 duplicates. Delete them?")
+        self.create_yes_no_dialog_window('Detected 12 duplicates. Delete them?')
 
     def create_yes_no_dialog_window(self, question=''):
         self.dialog = AnimatedDialog(self, question, QSize(400, 200),
