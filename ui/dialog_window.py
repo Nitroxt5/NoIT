@@ -1,5 +1,5 @@
 from PyQt5.QtCore import Qt, QTimer, QSequentialAnimationGroup, QRect, QPropertyAnimation, QEasingCurve, QPoint, QSize
-from PyQt5.QtWidgets import QDialog, QLabel, QPushButton, QVBoxLayout
+from PyQt5.QtWidgets import QDialog, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, QDialogButtonBox
 
 
 class AnimatedDialog(QDialog):
@@ -7,10 +7,9 @@ class AnimatedDialog(QDialog):
         super().__init__(parent)
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
         self.setStyleSheet("""
-            background-color: rgba(0, 0, 0, 200);
-            color: white;
-            border: 2px solid cyan;
-            border-radius: 8px;
+background-color: rgba(20, 40, 80, 160);            /* тёмно-синий фон с прозрачностью */
+    border: 1px solid rgba(255, 255, 255, 70);           /* светлая окантовка */
+    border-radius: 12px;
         """)
         if parent:
             self.initial_pos = QPoint(parent.pos().x() + pos.x(), parent.pos().y() + pos.y())
@@ -20,10 +19,28 @@ class AnimatedDialog(QDialog):
         self.text = text
         self.label = QLabel()
         self.label.setWordWrap(True)
+        self.label.setStyleSheet("color: white;")
         self.typing_index = 0
         self.typing_timer = QTimer()
-        self.exit_btn = QPushButton()
         self.sequence = QSequentialAnimationGroup()
+        self.button_box = QDialogButtonBox(QDialogButtonBox.Yes | QDialogButtonBox.No)
+        self.button_box.setStyleSheet("""
+            QPushButton {
+                color: white;
+                background-color: rgba(20, 40, 80, 100);
+                border: 1px solid rgba(255, 255, 255, 60);
+                border-radius: 6px;
+                padding: 6px 12px;
+            }
+            QPushButton:hover {
+                background-color: rgba(100, 140, 200, 180);
+            }
+        """)
+        self.button_box.setEnabled(False)
+        self.button_box.button(QDialogButtonBox.Yes).setFixedSize(60, 40)
+        self.button_box.button(QDialogButtonBox.No).setFixedSize(60, 40)
+        self.button_box.button(QDialogButtonBox.Yes).setStyleSheet("color: white;")
+        self.button_box.button(QDialogButtonBox.No).setStyleSheet("color: white;")
 
     def show_animated(self):
         start_w, start_h = 20, 20
@@ -71,9 +88,8 @@ class AnimatedDialog(QDialog):
 
     def create_contents(self):
         self.setFixedWidth(self.max_size.width())
-        layout = QVBoxLayout(self)
-        self.exit_btn = QPushButton('Exit', self)
-        self.exit_btn.clicked.connect(self.close)
-        layout.addWidget(self.label)
-        layout.addWidget(self.exit_btn)
+        layout_v = QVBoxLayout(self)
+        layout_v.addWidget(self.label)
+        layout_v.addWidget(self.button_box)
         self.start_typing_effect()
+        self.button_box.setEnabled(True)

@@ -1,6 +1,6 @@
-from PyQt5.QtCore import QRect, QRectF, QPoint, QTimer, QSize
+from PyQt5.QtCore import QRectF, QPoint, QTimer, QSize
 from PyQt5.QtGui import QColor, QPainter, QBrush, QPen
-from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QGraphicsScene, QGraphicsView, QPushButton, QGraphicsEllipseItem,
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QGraphicsScene, QGraphicsView, QGraphicsEllipseItem,
                              QGraphicsDropShadowEffect)
 
 from ui.pulse_wave import PulseWave
@@ -15,7 +15,7 @@ class Pipeline(QWidget):
         self.setFixedSize(2000, 1500)
 
         layout = QVBoxLayout(self)
-        self.scene = QGraphicsScene(0, 0, 2000, 1460)
+        self.scene = QGraphicsScene(0, 0, 2000, 1500)
         self.scene.setBackgroundBrush(QColor(22, 22, 35))
         self.view = QGraphicsView(self.scene)
         self.view.setRenderHint(QPainter.Antialiasing)
@@ -39,11 +39,7 @@ class Pipeline(QWidget):
             self.steps.append(node)
             node.setVisible(False)
 
-        self.next_btn = QPushButton("Next step")
-        self.next_btn.clicked.connect(self.next_step)
-        layout.addWidget(self.next_btn)
-
-        self.fade_in_node(self.steps[0], lambda: None)
+        self.fade_in_node(self.steps[0])
         self.next_step()
 
     def create_node(self, x, y):
@@ -73,10 +69,21 @@ class Pipeline(QWidget):
         center = node.sceneBoundingRect().center()
         self.pulse_wave = PulseWave(self.scene, center)
 
-        self.dialog = AnimatedDialog(self, "Detected 12 duplicates. Delete them?", QSize(400, 200),
+        self.create_yes_no_dialog_window("Detected 12 duplicates. Delete them?")
+
+    def create_yes_no_dialog_window(self, question=''):
+        self.dialog = AnimatedDialog(self, question, QSize(400, 200),
                                      QPoint(self.steps[self.current].x(),
                                             self.steps[self.current].y() - self.node_radius))
+        self.dialog.button_box.accepted.connect(self.on_yes)
+        self.dialog.button_box.rejected.connect(self.on_no)
         self.dialog.show_animated()
+
+    def on_yes(self):
+        self.next_step()
+
+    def on_no(self):
+        self.next_step()
 
     def set_node_complete(self, node):
         color = QColor(190, 255, 180, 40)
@@ -90,15 +97,15 @@ class Pipeline(QWidget):
         self.pulse_wave.remove_from_scene()
 
     def next_step(self):
-        self.next_btn.setEnabled(False)
+        self.dialog.close()
 
         def activate():
             self.set_node_active(self.steps[self.current])
             self.activated_first = True
             try:
-                self.fade_in_node(self.steps[self.current + 1], lambda: self.next_btn.setEnabled(True))
+                self.fade_in_node(self.steps[self.current + 1])
             except IndexError:
-                self.next_btn.setEnabled(True)
+                pass
 
         if not self.activated_first:
             entry = QPoint(-80, self.steps[0].sceneBoundingRect().center().y())
@@ -115,7 +122,6 @@ class Pipeline(QWidget):
 
         self.current += 1
         if self.current >= len(self.steps):
-            self.next_btn.setEnabled(False)
             return
 
         if self.current > 0:
@@ -127,7 +133,7 @@ class Pipeline(QWidget):
             flow.animate()
             self.flows.append(flow)
 
-    def fade_in_node(self, node, on_finished):
+    def fade_in_node(self, node):
         steps = 20
         self.fade_step = 0
 
@@ -137,7 +143,6 @@ class Pipeline(QWidget):
             self.fade_step += 3
             if self.fade_step >= steps:
                 self.fade_timer.stop()
-                on_finished()
 
         node.setVisible(True)
         node.setOpacity(0)
