@@ -9,7 +9,7 @@ from ui.dialog_window import AnimatedDialog
 
 
 class Pipeline(QWidget):
-    def __init__(self):
+    def __init__(self, data):
         super().__init__()
         self.setWindowTitle('NoIT')
         self.setFixedSize(2000, 1500)
@@ -22,6 +22,7 @@ class Pipeline(QWidget):
         self.node_radius = 30
         layout.addWidget(self.view)
 
+        self.data = data
         self.node_start_x = 200
         self.node_step = 200
         self.steps = []
@@ -72,7 +73,7 @@ class Pipeline(QWidget):
         self.create_yes_no_dialog_window('Detected 12 duplicates. Delete them?')
 
     def create_yes_no_dialog_window(self, question=''):
-        self.dialog = AnimatedDialog(self, question, QSize(400, 200),
+        self.dialog = AnimatedDialog(self.parent().parent(), question, QSize(400, 200),
                                      QPoint(self.steps[self.current].x(),
                                             self.steps[self.current].y() - self.node_radius))
         self.dialog.button_box.accepted.connect(self.on_yes)

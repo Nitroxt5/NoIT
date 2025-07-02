@@ -1,11 +1,11 @@
 import sys
 from PyQt5.QtWidgets import QApplication
 
-from ui.pipeline import Pipeline
+from ui.main_widget import MainWindow
 
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    window = Pipeline()
+    window = MainWindow()
     window.show()
     sys.exit(app.exec_())
