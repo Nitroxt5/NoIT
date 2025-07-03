@@ -20,9 +20,8 @@ class CsvDropZone(QWidget):
 
         self.setStyleSheet("""
             QWidget {
-                background-color: rgba(20, 40, 80, 160);
+                background-color: rgb(20, 40, 80);
                 border: 1px solid rgba(255, 255, 255, 60);
-                border-radius: 12px;
                 color: white;
                 font-family: 'Segoe UI', sans-serif;
             }
@@ -33,7 +32,7 @@ class CsvDropZone(QWidget):
 
             QPushButton {
                 color: white;
-                background-color: rgba(30, 60, 120, 100);
+                background-color: rgb(47, 58, 57);
                 border: 1px solid rgba(255, 255, 255, 40);
                 border-radius: 6px;
                 padding: 6px 12px;
@@ -41,7 +40,7 @@ class CsvDropZone(QWidget):
             }
 
             QPushButton:hover {
-                background-color: rgba(100, 140, 200, 180);
+                background-color: rgba(47, 58, 57, 200);
             }
 
             QTableWidget {
@@ -50,7 +49,7 @@ class CsvDropZone(QWidget):
                 border: none;
             }
             QTableCornerButton::section {
-                background-color: rgba(20, 40, 80, 160);
+                background-color: rgb(20, 40, 80);
             }
 
             QHeaderView::section {

@@ -15,6 +15,7 @@ class AnimatedDialog(QDialog):
             self.initial_pos = QPoint(parent.pos().x() + pos.x(), parent.pos().y() + pos.y())
         else:
             self.initial_pos = pos
+        self.start_size = QSize(20, 20)
         self.max_size = size
         self.text = text
         self.label = QLabel()
@@ -43,7 +44,7 @@ class AnimatedDialog(QDialog):
         self.button_box.button(QDialogButtonBox.No).setStyleSheet('color: white;')
 
     def show_animated(self):
-        start_w, start_h = 20, 20
+        start_w, start_h = self.start_size.width(), self.start_size.height()
         mid_h = self.max_size.height()
         final_w = self.max_size.width()
         x = self.initial_pos.x()
