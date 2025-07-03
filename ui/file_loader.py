@@ -1,10 +1,10 @@
 import pandas as pd
 from PyQt5.QtWidgets import (
     QLabel, QPushButton, QWidget, QFileDialog,
-    QVBoxLayout, QTableWidget, QTableWidgetItem
+    QVBoxLayout, QTableWidget, QTableWidgetItem, QHeaderView
 )
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QFontMetrics
 
 
 class CsvDropZone(QWidget):
@@ -66,12 +66,28 @@ class CsvDropZone(QWidget):
         self.table.setCornerButtonEnabled(False)
         self.table.verticalHeader().setDefaultSectionSize(28)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.path = ''
         self.continue_btn = QPushButton('Continue', self)
         self.continue_btn.clicked.connect(self.on_continue)
         self.continue_btn.setEnabled(False)
         self.continue_btn.setVisible(False)
         self.layout = QVBoxLayout(self)
         self.layout.addWidget(self.label)
+
+    def adapt_table_width(self):
+        for col in range(self.table.columnCount()):
+            self.table.setColumnWidth(col, 150)
+        font_metrics = QFontMetrics(self.table.font())
+        for col in range(self.table.columnCount()):
+            max_width = font_metrics.width(self.table.horizontalHeaderItem(col).text()) + 20
+            for row in range(self.table.rowCount()):
+                item = self.table.item(row, col)
+                if item:
+                    item_width = font_metrics.width(item.text()) + 20
+                    max_width = max(max_width, item_width)
+                if max_width > self.table.columnWidth(col):
+                    self.table.horizontalHeader().setSectionResizeMode(col, QHeaderView.ResizeToContents)
+                    break
 
     def on_continue(self):
         if self.on_success_callback:
@@ -99,6 +115,9 @@ class CsvDropZone(QWidget):
         else:
             self.label.setText('Wrong file format')
 
+    def dragLeaveEvent(self, event):
+        self.label.setText(f'File: {self.path.split("/")[-1]}')
+
     def select_file(self):
         file_path, _ = QFileDialog.getOpenFileName(
             self, 'Choose CSV file', filter='CSV Files (*.csv)'
@@ -107,8 +126,10 @@ class CsvDropZone(QWidget):
             self.load_csv(file_path)
 
     def load_csv(self, path):
+        self.path = path
         try:
-            self.df = pd.read_csv(path, encoding='utf-8')
+            self.df = pd.read_csv(self.path, encoding='utf-8')
+            self.df = self.df.convert_dtypes()
 
             if self.df.empty:
                 self.label.setText('File is empty')
@@ -128,11 +149,12 @@ class CsvDropZone(QWidget):
                     item.setForeground(Qt.white)
                     self.table.setItem(i, j, item)
 
-            self.label.setText(f'File: {path.split("/")[-1]}')
+            self.label.setText(f'File: {self.path.split("/")[-1]}')
             self.continue_btn.setEnabled(True)
             self.continue_btn.setVisible(True)
             self.layout.addWidget(self.table)
             self.layout.addWidget(self.continue_btn)
+            self.adapt_table_width()
         except Exception as e:
             self.label.setText(f"Error: {e}")
             self.table.clear()
