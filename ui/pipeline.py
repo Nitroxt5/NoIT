@@ -1,11 +1,11 @@
-from PyQt5.QtCore import QRectF, QPoint, QTimer, QSize
+from PyQt5.QtCore import QRectF, QPoint, QTimer
 from PyQt5.QtGui import QColor, QPainter, QBrush, QPen
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QGraphicsScene, QGraphicsView, QGraphicsEllipseItem,
                              QGraphicsDropShadowEffect)
 
 from ui.pulse_wave import PulseWave
 from ui.flow_line import FlowLine
-from ui.dialog_window import AnimatedDialog
+from eda.eda_handlers import EDA
 
 
 class Pipeline(QWidget):
@@ -22,7 +22,9 @@ class Pipeline(QWidget):
         self.node_radius = 30
         layout.addWidget(self.view)
 
-        self.data = data
+        self.eda = EDA(data, self)
+        self.actions = (self.eda.handle_unimportant, self.eda.handle_duplicates, self.eda.handle_nulls)
+        self.current_action = 0
         self.node_start_x = 200
         self.node_step = 200
         self.steps = []
@@ -32,13 +34,11 @@ class Pipeline(QWidget):
         self.activated_first = False
         self.fade_step = 0
         self.fade_timer = QTimer()
-        self.dialog = AnimatedDialog()
 
-        for i in range(5):
+        for i in range(10):
             node = self.create_node(self.node_start_x + i * self.node_step, self.geometry().height() // 2)
             self.scene.addItem(node)
             self.steps.append(node)
-            node.setVisible(False)
 
         self.fade_in_node(self.steps[0])
         self.next_step()
@@ -48,6 +48,7 @@ class Pipeline(QWidget):
         node.setBrush(QBrush(QColor(255, 255, 255, 30)))
         node.setPen(QPen(QColor(255, 255, 255, 80), 1.5))
         node.setPos(x, y)
+        node.setVisible(False)
         node.setTransformOriginPoint(node.boundingRect().center())
 
         glow = QGraphicsDropShadowEffect()
@@ -67,24 +68,13 @@ class Pipeline(QWidget):
         glow.setColor(QColor(0, 255, 255, 140))
         node.setGraphicsEffect(glow)
 
-        center = node.sceneBoundingRect().center()
-        self.pulse_wave = PulseWave(self.scene, center)
+        self.pulse_wave = PulseWave(self.scene, node.sceneBoundingRect().center())
 
-        self.create_yes_no_dialog_window('Detected 12 duplicates. Delete them?')
-
-    def create_yes_no_dialog_window(self, question=''):
-        self.dialog = AnimatedDialog(self.parent().parent(), question, QSize(400, 200),
-                                     QPoint(self.steps[self.current].x(),
-                                            self.steps[self.current].y() - self.node_radius))
-        self.dialog.button_box.accepted.connect(self.on_yes)
-        self.dialog.button_box.rejected.connect(self.on_no)
-        self.dialog.show_animated()
-
-    def on_yes(self):
-        self.next_step()
-
-    def on_no(self):
-        self.next_step()
+        try:
+            while self.actions[self.current_action]():
+                self.current_action += 1
+        except IndexError:
+            pass
 
     def set_node_complete(self, node):
         color = QColor(190, 255, 180, 40)
@@ -98,22 +88,14 @@ class Pipeline(QWidget):
         self.pulse_wave.remove_from_scene()
 
     def next_step(self):
-        self.dialog.close()
-
-        def activate():
-            self.set_node_active(self.steps[self.current])
-            self.activated_first = True
-            try:
-                self.fade_in_node(self.steps[self.current + 1])
-            except IndexError:
-                pass
+        self.eda.dialog.close()
 
         if not self.activated_first:
             entry = QPoint(-80, self.steps[0].sceneBoundingRect().center().y())
             target = self.steps[0].sceneBoundingRect().center()
             target.setX(target.x() - self.node_radius)
             self.current += 1
-            flow = FlowLine(self.scene, entry, target, on_finished=activate)
+            flow = FlowLine(self.scene, entry, target, on_finished=self.activate)
             flow.animate()
             self.flows.append(flow)
             return
@@ -130,9 +112,17 @@ class Pipeline(QWidget):
             p1.setX(p1.x() + self.node_radius)
             p2 = self.steps[self.current].sceneBoundingRect().center()
             p2.setX(p2.x() - self.node_radius)
-            flow = FlowLine(self.scene, p1, p2, on_finished=activate)
+            flow = FlowLine(self.scene, p1, p2, on_finished=self.activate)
             flow.animate()
             self.flows.append(flow)
+
+    def activate(self):
+        self.set_node_active(self.steps[self.current])
+        self.activated_first = True
+        try:
+            self.fade_in_node(self.steps[self.current + 1])
+        except IndexError:
+            pass
 
     def fade_in_node(self, node):
         steps = 20

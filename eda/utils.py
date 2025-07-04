@@ -1,28 +1,17 @@
 import pandas as pd
-import sys
 
 
-def get_choice(question: str, possible_choices=('y', 'yes', 'n', 'no')):
-    choice = input(question)
-    while choice not in possible_choices + ('e', 'exit'):
-        print(f'Wrong format. Enter one of the following commands: {possible_choices + ("e", "exit")}. ')
-        choice = input(question)
-    if choice == 'e' or choice == 'exit':
-        sys.exit(0)
-    return choice
-
-
-def split_to_data_and_target(data: pd.DataFrame):
-    col_list = ''
-    possible_choices = []
-    for i, col in enumerate(data.columns, start=1):
-        col_list += f'{i}. {col}\n'
-        possible_choices.append(f'{i}')
-    choice = get_choice(f'Select which column is a target:\n{col_list}', tuple(possible_choices))
-    target_col = data.columns[int(choice) - 1]
-    target = data[target_col]
-    data = data.drop(target_col, axis=1)
-    return data, target
+# def split_to_data_and_target(data: pd.DataFrame):
+#     col_list = ''
+#     possible_choices = []
+#     for i, col in enumerate(data.columns, start=1):
+#         col_list += f'{i}. {col}\n'
+#         possible_choices.append(f'{i}')
+#     choice = get_choice(f'Select which column is a target:\n{col_list}', tuple(possible_choices))
+#     target_col = data.columns[int(choice) - 1]
+#     target = data[target_col]
+#     data = data.drop(target_col, axis=1)
+#     return data, target
 
 
 def count_max_decimal_places(col: pd.Series):

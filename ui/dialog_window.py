@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QDialog, QLabel, QVBoxLayout, QDialogButtonBox
 
 
 class AnimatedDialog(QDialog):
-    def __init__(self, parent=None, text='', size=QSize(400, 200), pos=QPoint(0, 0)):
+    def __init__(self, buttons: list, parent=None, text='', size=QSize(400, 200), pos=QPoint(0, 0), vertical=False):
         super().__init__(parent)
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
         self.setStyleSheet("""
@@ -20,11 +20,18 @@ class AnimatedDialog(QDialog):
         self.text = text
         self.label = QLabel()
         self.label.setWordWrap(True)
-        self.label.setStyleSheet('color: white;')
+        self.label.setStyleSheet('color: white; font-size: 25px;')
         self.typing_index = 0
         self.typing_timer = QTimer()
         self.sequence = QSequentialAnimationGroup()
-        self.button_box = QDialogButtonBox(QDialogButtonBox.Yes | QDialogButtonBox.No)
+        if vertical:
+            self.button_box = QDialogButtonBox(Qt.Vertical)
+        else:
+            self.button_box = QDialogButtonBox()
+        for btn in buttons[:len(buttons) - 1]:
+            self.button_box.addButton(btn, QDialogButtonBox.AcceptRole)
+        if len(buttons) > 1:
+            self.button_box.addButton(buttons[-1], QDialogButtonBox.RejectRole)
         self.button_box.setStyleSheet("""
             QPushButton {
                 color: white;
@@ -38,10 +45,10 @@ class AnimatedDialog(QDialog):
             }
         """)
         self.button_box.setEnabled(False)
-        self.button_box.button(QDialogButtonBox.Yes).setFixedSize(60, 40)
-        self.button_box.button(QDialogButtonBox.No).setFixedSize(60, 40)
-        self.button_box.button(QDialogButtonBox.Yes).setStyleSheet('color: white;')
-        self.button_box.button(QDialogButtonBox.No).setStyleSheet('color: white;')
+        for btn in self.button_box.buttons():
+            if vertical:
+                btn.setFixedSize(self.max_size.width() - 50, 40)
+            btn.setStyleSheet('color: white;')
 
     def show_animated(self):
         start_w, start_h = self.start_size.width(), self.start_size.height()
