@@ -1,5 +1,5 @@
 from PyQt5.QtCore import Qt, QTimer, QSequentialAnimationGroup, QRect, QPropertyAnimation, QEasingCurve, QPoint, QSize
-from PyQt5.QtWidgets import QDialog, QLabel, QVBoxLayout, QDialogButtonBox
+from PyQt5.QtWidgets import QDialog, QLabel, QVBoxLayout, QDialogButtonBox, QSizePolicy
 
 
 class AnimatedDialog(QDialog):
@@ -20,6 +20,7 @@ class AnimatedDialog(QDialog):
         self.text = text
         self.label = QLabel()
         self.label.setWordWrap(True)
+        self.label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.MinimumExpanding)
         self.label.setStyleSheet('color: white; font-size: 25px;')
         self.typing_index = 0
         self.typing_timer = QTimer()
@@ -47,7 +48,7 @@ class AnimatedDialog(QDialog):
         self.button_box.setEnabled(False)
         for btn in self.button_box.buttons():
             if vertical:
-                btn.setFixedSize(self.max_size.width() - 50, 40)
+                btn.setFixedSize(self.label.sizeHint().width() - 53, 40)
             btn.setStyleSheet('color: white;')
 
     def show_animated(self):
