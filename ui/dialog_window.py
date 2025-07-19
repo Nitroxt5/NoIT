@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QDialog, QLabel, QVBoxLayout, QDialogButtonBox, QSiz
 class AnimatedDialog(QDialog):
     def __init__(self, buttons: list, parent=None, text='', size=QSize(400, 200), pos=QPoint(0, 0), vertical=False):
         super().__init__(parent)
+        self.vertical = vertical
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
         self.setStyleSheet("""
             background-color: rgba(20, 40, 80, 160);
@@ -18,10 +19,11 @@ class AnimatedDialog(QDialog):
         self.start_size = QSize(20, 20)
         self.max_size = size
         self.text = text
-        self.label = QLabel()
+        self.label = QLabel(text)
         self.label.setWordWrap(True)
         self.label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.MinimumExpanding)
         self.label.setStyleSheet('color: white; font-size: 25px;')
+        self.layout = QVBoxLayout(self)
         self.typing_index = 0
         self.typing_timer = QTimer()
         self.sequence = QSequentialAnimationGroup()
@@ -29,9 +31,11 @@ class AnimatedDialog(QDialog):
             self.button_box = QDialogButtonBox(Qt.Vertical)
         else:
             self.button_box = QDialogButtonBox()
-        for btn in buttons[:len(buttons) - 1]:
-            self.button_box.addButton(btn, QDialogButtonBox.AcceptRole)
-        if len(buttons) > 1:
+        if len(buttons) == 1:
+            self.button_box.addButton(buttons[0], QDialogButtonBox.AcceptRole)
+        elif len(buttons) != 0:
+            for btn in buttons[:len(buttons) - 1]:
+                self.button_box.addButton(btn, QDialogButtonBox.AcceptRole)
             self.button_box.addButton(buttons[-1], QDialogButtonBox.RejectRole)
         self.button_box.setStyleSheet("""
             QPushButton {
@@ -47,9 +51,10 @@ class AnimatedDialog(QDialog):
         """)
         self.button_box.setEnabled(False)
         for btn in self.button_box.buttons():
-            if vertical:
-                btn.setFixedSize(self.label.sizeHint().width() - 53, 40)
+            # if vertical:
+            #     btn.setFixedSize(self.label.sizeHint().width() - 53, 40)
             btn.setStyleSheet('color: white;')
+        self.label.setText('')
 
     def show_animated(self):
         start_w, start_h = self.start_size.width(), self.start_size.height()
@@ -97,8 +102,10 @@ class AnimatedDialog(QDialog):
 
     def create_contents(self):
         self.setFixedWidth(self.max_size.width())
-        layout_v = QVBoxLayout(self)
-        layout_v.addWidget(self.label)
-        layout_v.addWidget(self.button_box)
+        self.layout.addWidget(self.label)
+        self.layout.addWidget(self.button_box)
         self.start_typing_effect()
         self.button_box.setEnabled(True)
+        if self.vertical:
+            for btn in self.button_box.buttons():
+                btn.setFixedSize(self.label.parentWidget().size().width() - 44, 40)

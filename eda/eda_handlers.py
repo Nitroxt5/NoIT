@@ -9,6 +9,8 @@ from ui.dialog_window import AnimatedDialog
 class EDA:
     def __init__(self, data: pd.DataFrame, pipeline):
         self.data = data
+        self.first = True
+        self.unimportant_exists = False
         self.pipeline = pipeline
         self.dialog = AnimatedDialog([])
 
@@ -42,6 +44,7 @@ class EDA:
             if count * 2 < row_count:
                 continue
 
+            self.unimportant_exists = True
             yes_btn = QPushButton('Yes')
             no_btn = QPushButton('No')
             yes_btn.clicked.connect(lambda: self.on_click(lambda: self.data.drop(col, axis=1, inplace=True)))
@@ -49,12 +52,20 @@ class EDA:
             self.create_dialog_window([yes_btn, no_btn],
                                       f'Column `{col}` seems to be unimportant. Remove?')
             return False
+        if not self.unimportant_exists and self.first:
+            self.create_info_window('No unimportant columns found.')
+            self.first = False
+            return False
         return True
 
     def handle_duplicates(self):
+        if not self.first:
+            return True
+        self.first = False
         duplicates_count = self.data.duplicated().value_counts().get(True, 0)
         if duplicates_count == 0:
-            return True
+            self.create_info_window('No duplicates found.')
+            return False
         yes_btn = QPushButton('Yes')
         no_btn = QPushButton('No')
         yes_btn.clicked.connect(lambda: self.on_click(lambda: self.data.drop_duplicates(inplace=True)))
@@ -68,6 +79,7 @@ class EDA:
         nulls_count = self.data.isnull().sum()
         cols_with_empty_values = self.data.columns[self.data.isnull().any()]
         for col in cols_with_empty_values:
+            self.first = False
             dc_btn = QPushButton('Delete column')
             dc_btn.clicked.connect(lambda: self.on_click(lambda: self.data.drop(col, axis=1, inplace=True)))
             dr_btn = QPushButton('Delete row')
@@ -84,6 +96,10 @@ class EDA:
                 buttons = [dc_btn, dr_btn, fr_btn]
             self.create_dialog_window(buttons, f'{nulls_count[col]} empty values detected in column `{col}`. '
                                                f'How to handle them?', QSize(400, 400), True)
+            return False
+        if cols_with_empty_values.empty and self.first:
+            self.create_info_window('No empty values found.')
+            self.first = False
             return False
         self.data = self.data.convert_dtypes()
         return True

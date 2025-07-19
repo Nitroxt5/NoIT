@@ -73,6 +73,7 @@ class Pipeline(QWidget):
         try:
             while self.actions[self.current_action]():
                 self.current_action += 1
+                self.eda.first = True
         except IndexError:
             pass
 
