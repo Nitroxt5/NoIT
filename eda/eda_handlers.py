@@ -4,6 +4,7 @@ from PyQt5.QtCore import QPoint, QSize
 from PyQt5.QtWidgets import QPushButton, QComboBox
 
 from ui.dialog_window import AnimatedDialog
+from eda.encoding_handlers import encode_data
 
 
 class EDA:
@@ -130,11 +131,19 @@ class EDA:
         self.first = False
         button_names = self.data.columns
         self.dropdown.addItems(button_names)
-        self.dropdown.currentIndexChanged.connect(lambda: self.on_click(self.handle_target_selection))
+        self.dropdown.currentIndexChanged.connect(lambda: self.on_click(self.on_target_selection))
         self.create_dialog_window([self.dropdown], 'Choose a target variable:', mode='dropdown')
         return False
 
-    def handle_target_selection(self):
+    def on_target_selection(self):
         choice = self.dropdown.currentText()
         self.target = self.data[choice]
         self.data.drop(choice, axis=1, inplace=True)
+
+    def handle_encoding(self):
+        if not self.first:
+            return True
+        self.first = False
+        self.data = encode_data(self.data)
+        self.create_info_window('Data is encoded.')
+        return False

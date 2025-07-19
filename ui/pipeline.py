@@ -24,7 +24,7 @@ class Pipeline(QWidget):
 
         self.eda = EDA(data, self)
         self.actions = (self.eda.handle_unimportant, self.eda.handle_duplicates, self.eda.handle_nulls,
-                        self.eda.split_to_data_and_target)
+                        self.eda.split_to_data_and_target, self.eda.handle_encoding)
         self.current_action = 0
         self.node_start_x = 200
         self.node_step = 200
