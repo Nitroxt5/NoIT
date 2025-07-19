@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from PyQt5.QtCore import QPoint, QSize
-from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtWidgets import QPushButton, QComboBox
 
 from ui.dialog_window import AnimatedDialog
 
@@ -9,8 +9,10 @@ from ui.dialog_window import AnimatedDialog
 class EDA:
     def __init__(self, data: pd.DataFrame, pipeline):
         self.data = data
+        self.target = None
         self.first = True
         self.unimportant_exists = False
+        self.dropdown = QComboBox()
         self.pipeline = pipeline
         self.dialog = AnimatedDialog([])
 
@@ -20,11 +22,11 @@ class EDA:
         action()
         self.pipeline.next_step()
 
-    def create_dialog_window(self, buttons: list, question='', size=QSize(400, 200), vertical=False):
+    def create_dialog_window(self, buttons: list, question='', size=QSize(400, 200), mode='horizontal'):
         self.dialog = AnimatedDialog(buttons, self.pipeline.parent().parent(), question, size,
                                      QPoint(self.pipeline.steps[self.pipeline.current].x(),
                                             self.pipeline.steps[self.pipeline.current].y() - self.pipeline.node_radius),
-                                     vertical)
+                                     mode)
         self.dialog.show_animated()
 
     def create_info_window(self, info=''):
@@ -95,7 +97,7 @@ class EDA:
             else:
                 buttons = [dc_btn, dr_btn, fr_btn]
             self.create_dialog_window(buttons, f'{nulls_count[col]} empty values detected in column `{col}`. '
-                                               f'How to handle them?', QSize(400, 400), True)
+                                               f'How to handle them?', QSize(400, 400), 'vertical')
             return False
         if cols_with_empty_values.empty and self.first:
             self.create_info_window('No empty values found.')
@@ -121,3 +123,18 @@ class EDA:
         if pd.api.types.is_integer_dtype(self.data[col].dtype):
             avg = round(avg)
         self.data.fillna({col: avg}, inplace=True)
+
+    def split_to_data_and_target(self):
+        if not self.first:
+            return True
+        self.first = False
+        button_names = self.data.columns
+        self.dropdown.addItems(button_names)
+        self.dropdown.currentIndexChanged.connect(lambda: self.on_click(self.handle_target_selection))
+        self.create_dialog_window([self.dropdown], 'Choose a target variable:', mode='dropdown')
+        return False
+
+    def handle_target_selection(self):
+        choice = self.dropdown.currentText()
+        self.target = self.data[choice]
+        self.data.drop(choice, axis=1, inplace=True)

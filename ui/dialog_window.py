@@ -3,9 +3,9 @@ from PyQt5.QtWidgets import QDialog, QLabel, QVBoxLayout, QDialogButtonBox, QSiz
 
 
 class AnimatedDialog(QDialog):
-    def __init__(self, buttons: list, parent=None, text='', size=QSize(400, 200), pos=QPoint(0, 0), vertical=False):
+    def __init__(self, buttons: list, parent=None, text='', size=QSize(400, 200), pos=QPoint(0, 0), mode='horizontal'):
         super().__init__(parent)
-        self.vertical = vertical
+        self.mode = mode
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
         self.setStyleSheet("""
             background-color: rgba(20, 40, 80, 160);
@@ -27,33 +27,46 @@ class AnimatedDialog(QDialog):
         self.typing_index = 0
         self.typing_timer = QTimer()
         self.sequence = QSequentialAnimationGroup()
-        if vertical:
-            self.button_box = QDialogButtonBox(Qt.Vertical)
+        if self.mode != 'dropdown':
+            if self.mode == 'vertical':
+                self.button_box = QDialogButtonBox(Qt.Vertical)
+            else:
+                self.button_box = QDialogButtonBox()
+            if len(buttons) == 1:
+                self.button_box.addButton(buttons[0], QDialogButtonBox.AcceptRole)
+            elif len(buttons) != 0:
+                for btn in buttons[:len(buttons) - 1]:
+                    self.button_box.addButton(btn, QDialogButtonBox.AcceptRole)
+                self.button_box.addButton(buttons[-1], QDialogButtonBox.RejectRole)
+            self.button_box.setStyleSheet("""
+                QPushButton {
+                    color: white;
+                    background-color: rgba(20, 40, 80, 100);
+                    border: 1px solid rgba(255, 255, 255, 60);
+                    border-radius: 6px;
+                    padding: 6px 12px;
+                }
+                QPushButton:hover {
+                    background-color: rgba(100, 140, 200, 180);
+                }
+            """)
         else:
-            self.button_box = QDialogButtonBox()
-        if len(buttons) == 1:
-            self.button_box.addButton(buttons[0], QDialogButtonBox.AcceptRole)
-        elif len(buttons) != 0:
-            for btn in buttons[:len(buttons) - 1]:
-                self.button_box.addButton(btn, QDialogButtonBox.AcceptRole)
-            self.button_box.addButton(buttons[-1], QDialogButtonBox.RejectRole)
-        self.button_box.setStyleSheet("""
-            QPushButton {
-                color: white;
-                background-color: rgba(20, 40, 80, 100);
-                border: 1px solid rgba(255, 255, 255, 60);
-                border-radius: 6px;
-                padding: 6px 12px;
-            }
-            QPushButton:hover {
-                background-color: rgba(100, 140, 200, 180);
-            }
-        """)
+            self.button_box = buttons[0]
+            self.button_box.setStyleSheet("""
+                QComboBox {
+                    color: white;
+                    background-color: rgba(20, 40, 80, 100);
+                    border: 1px solid rgba(255, 255, 255, 60);
+                    border-radius: 6px;
+                    padding: 6px 12px;
+                }
+                QComboBox QAbstractItemView {
+                    color: white;
+                    selection-background-color: rgba(100, 140, 200, 180);
+                }
+            """)
+            self.button_box.setMaxVisibleItems(8)
         self.button_box.setEnabled(False)
-        for btn in self.button_box.buttons():
-            # if vertical:
-            #     btn.setFixedSize(self.label.sizeHint().width() - 53, 40)
-            btn.setStyleSheet('color: white;')
         self.label.setText('')
 
     def show_animated(self):
@@ -106,6 +119,6 @@ class AnimatedDialog(QDialog):
         self.layout.addWidget(self.button_box)
         self.start_typing_effect()
         self.button_box.setEnabled(True)
-        if self.vertical:
+        if self.mode == 'vertical':
             for btn in self.button_box.buttons():
                 btn.setFixedSize(self.label.parentWidget().size().width() - 44, 40)
