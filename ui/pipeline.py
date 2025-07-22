@@ -32,12 +32,13 @@ class Pipeline(QWidget):
         self.node_start_x = 200
         self.node_step = 400
         self.steps = []
-        self.flows = []
+        self.flow = FlowLine(self.scene)
         self.pulse_wave = None
         self.current = -1
         self.activated_first = False
         self.fade_step = 0
         self.fade_timer = QTimer()
+        self.flow_line_timer = QTimer()
         self.scroll_animation = None
 
         for i in range(2 * len(data.columns) + 4):
@@ -91,6 +92,14 @@ class Pipeline(QWidget):
         glow.setColor(QColor(0, 255, 255, 140))
         node.setGraphicsEffect(glow)
 
+        p1 = self.steps[self.current].sceneBoundingRect().center()
+        p1.setX(p1.x() + self.node_radius)
+        p2 = self.steps[self.current + 1].sceneBoundingRect().center()
+        p2.setX(p2.x() - self.node_radius)
+        self.flow = FlowLine(self.scene, p1, p2, pen_style=Qt.DashLine)
+        self.flow_line_timer = QTimer()
+        self.flow_line_timer.timeout.connect(self.flow.animate)
+        self.flow_line_timer.start(1100)
         self.pulse_wave = PulseWave(self.scene, node.sceneBoundingRect().center())
 
         try:
@@ -113,15 +122,16 @@ class Pipeline(QWidget):
 
     def next_step(self):
         self.eda.dialog.close()
+        self.flow_line_timer.stop()
+        self.flow.clear()
 
         if not self.activated_first:
             entry = QPoint(0, self.steps[0].sceneBoundingRect().center().y())
             target = self.steps[0].sceneBoundingRect().center()
             target.setX(target.x() - self.node_radius)
             self.current += 1
-            flow = FlowLine(self.scene, entry, target, on_finished=self.activate)
-            flow.animate()
-            self.flows.append(flow)
+            self.flow = FlowLine(self.scene, entry, target, on_finished=self.activate)
+            self.flow.animate()
             return
 
         if self.current >= 0:
@@ -136,9 +146,8 @@ class Pipeline(QWidget):
             p1.setX(p1.x() + self.node_radius)
             p2 = self.steps[self.current].sceneBoundingRect().center()
             p2.setX(p2.x() - self.node_radius)
-            flow = FlowLine(self.scene, p1, p2, on_finished=self.activate)
-            flow.animate()
-            self.flows.append(flow)
+            self.flow = FlowLine(self.scene, p1, p2, on_finished=self.activate)
+            self.flow.animate()
 
         self.expand_scene()
 
