@@ -15,7 +15,7 @@ class Pipeline(QWidget):
         self.setWindowTitle('NoIT')
 
         layout = QVBoxLayout(self)
-        self.scene_width = 1918
+        self.scene_width = 1919
         self.scene = QGraphicsScene(0, 0, self.scene_width, 1300)
         self.scene.setBackgroundBrush(QColor(22, 22, 35))
         self.view = QGraphicsView(self.scene)
@@ -30,7 +30,7 @@ class Pipeline(QWidget):
         self.current_action = 0
         self.node_radius = 30
         self.node_start_x = 200
-        self.node_step = 400
+        self.node_step = 500
         self.steps = []
         self.flow = FlowLine(self.scene)
         self.pulse_wave = None
