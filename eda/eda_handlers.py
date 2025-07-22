@@ -54,8 +54,6 @@ class EDA:
         for col, count in unique_counts.items():
             if col in self.ignored_unimportant_columns:
                 continue
-            if pd.api.types.is_float_dtype(self.data[col].dtype):
-                continue
             if count * 2 < row_count:
                 continue
 

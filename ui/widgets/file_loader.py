@@ -1,10 +1,14 @@
 import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 from PyQt5.QtWidgets import (
     QLabel, QPushButton, QWidget, QFileDialog,
     QVBoxLayout, QTableWidget, QTableWidgetItem, QHeaderView
 )
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QFontMetrics
+
+from ui.styles import scroll_bar_style
 
 
 class CsvDropZone(QWidget):
@@ -59,12 +63,13 @@ class CsvDropZone(QWidget):
                 border: none;
                 padding: 4px;
             }
-        """)
+        """ + scroll_bar_style)
 
         self.table = QTableWidget()
         self.table.setCornerButtonEnabled(False)
         self.table.verticalHeader().setDefaultSectionSize(28)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.table.horizontalHeader().sectionClicked.connect(self.draw_distribution)
         self.path = ''
         self.continue_btn = QPushButton('Continue', self)
         self.continue_btn.clicked.connect(self.on_continue)
@@ -87,6 +92,17 @@ class CsvDropZone(QWidget):
                 if max_width > self.table.columnWidth(col):
                     self.table.horizontalHeader().setSectionResizeMode(col, QHeaderView.ResizeToContents)
                     break
+
+    def draw_distribution(self, ind):
+        column = self.table.horizontalHeaderItem(ind).text()
+        plt.figure(figsize=(12, 12))
+        plt.xticks(fontsize=16)
+        plt.yticks(fontsize=16)
+        sns.histplot(x=column, data=self.df)
+        plt.title(column, fontsize=24)
+        plt.xlabel(column, fontsize=20)
+        plt.ylabel('Count', fontsize=20)
+        plt.show()
 
     def on_continue(self):
         if self.on_success_callback:
