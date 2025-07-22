@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from PyQt5.QtCore import QPoint, QSize
-from PyQt5.QtWidgets import QPushButton, QComboBox
+from PyQt5.QtWidgets import QPushButton, QComboBox, QGraphicsProxyWidget, QGraphicsItem
 
 from ui.dialog_window import AnimatedDialog
 from eda.encoding_handlers import encode_data
@@ -24,11 +24,16 @@ class EDA:
         self.pipeline.next_step()
 
     def create_dialog_window(self, buttons: list, question='', size=QSize(400, 200), mode='horizontal'):
-        self.dialog = AnimatedDialog(buttons, self.pipeline.parent().parent(), question, size,
-                                     QPoint(self.pipeline.steps[self.pipeline.current].x(),
-                                            self.pipeline.steps[self.pipeline.current].y() - self.pipeline.node_radius),
-                                     mode)
+        pos = self.pipeline.view.mapToScene(self.pipeline.view.viewport().rect().topLeft())
+        pos = QPoint(pos.x() + self.pipeline.steps[self.pipeline.current].x() -
+                     self.pipeline.view.horizontalScrollBar().value(),
+                     pos.y() + self.pipeline.steps[self.pipeline.current].y() - self.pipeline.node_radius)
+        self.dialog = AnimatedDialog(buttons, self.pipeline.parent().parent(), question, size, pos, mode)
         self.dialog.show_animated()
+        proxy = QGraphicsProxyWidget()
+        proxy.setWidget(self.dialog)
+        proxy.setFlags(QGraphicsItem.ItemIgnoresParentOpacity | QGraphicsItem.ItemIgnoresTransformations)
+        self.pipeline.scene.addItem(proxy)
 
     def create_info_window(self, info=''):
         next_btn = QPushButton('Next')

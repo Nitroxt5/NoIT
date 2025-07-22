@@ -1,21 +1,44 @@
 from PyQt5.QtCore import Qt, QTimer, QSequentialAnimationGroup, QRect, QPropertyAnimation, QEasingCurve, QPoint, QSize
-from PyQt5.QtWidgets import QDialog, QLabel, QVBoxLayout, QDialogButtonBox, QSizePolicy
+from PyQt5.QtGui import QPainter, QColor, QPen
+from PyQt5.QtWidgets import QLabel, QVBoxLayout, QSizePolicy, QWidget, QHBoxLayout
+
+from ui.styles import scroll_bar_style
 
 
-class AnimatedDialog(QDialog):
+class AnimatedDialog(QWidget):
     def __init__(self, buttons: list, parent=None, text='', size=QSize(400, 200), pos=QPoint(0, 0), mode='horizontal'):
         super().__init__(parent)
         self.mode = mode
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
+        self.button_style = """
+            QPushButton {
+                color: white;
+                background-color: rgba(20, 40, 80, 100);
+                border: 1px solid rgba(255, 255, 255, 60);
+                border-radius: 6px;
+                padding: 6px 12px;
+            }
+            QPushButton:hover {
+                background-color: rgba(100, 140, 200, 180);
+            }"""
+        self.combo_box_style = """
+            QComboBox {
+                color: white;
+                background-color: rgba(20, 40, 80, 100);
+                border: 1px solid rgba(255, 255, 255, 60);
+                border-radius: 6px;
+                padding: 6px 12px;
+            }
+            QComboBox QAbstractItemView {
+                color: white;
+                selection-background-color: rgba(100, 140, 200, 180);
+            }"""
         self.setStyleSheet("""
             background-color: rgba(20, 40, 80, 160);
             border: 1px solid rgba(255, 255, 255, 70);
             border-radius: 12px;
         """)
-        if parent:
-            self.initial_pos = QPoint(parent.pos().x() + pos.x(), parent.pos().y() + pos.y())
-        else:
-            self.initial_pos = pos
+        self.initial_pos = pos
         self.start_size = QSize(20, 20)
         self.max_size = size
         self.text = text
@@ -27,47 +50,28 @@ class AnimatedDialog(QDialog):
         self.typing_index = 0
         self.typing_timer = QTimer()
         self.sequence = QSequentialAnimationGroup()
-        if self.mode != 'dropdown':
-            if self.mode == 'vertical':
-                self.button_box = QDialogButtonBox(Qt.Vertical)
-            else:
-                self.button_box = QDialogButtonBox()
-            if len(buttons) == 1:
-                self.button_box.addButton(buttons[0], QDialogButtonBox.AcceptRole)
-            elif len(buttons) != 0:
-                for btn in buttons[:len(buttons) - 1]:
-                    self.button_box.addButton(btn, QDialogButtonBox.AcceptRole)
-                self.button_box.addButton(buttons[-1], QDialogButtonBox.RejectRole)
-            self.button_box.setStyleSheet("""
-                QPushButton {
-                    color: white;
-                    background-color: rgba(20, 40, 80, 100);
-                    border: 1px solid rgba(255, 255, 255, 60);
-                    border-radius: 6px;
-                    padding: 6px 12px;
-                }
-                QPushButton:hover {
-                    background-color: rgba(100, 140, 200, 180);
-                }
-            """)
+        if self.mode == 'vertical':
+            self.button_box = QVBoxLayout(self)
         else:
-            self.button_box = buttons[0]
-            self.button_box.setStyleSheet("""
-                QComboBox {
-                    color: white;
-                    background-color: rgba(20, 40, 80, 100);
-                    border: 1px solid rgba(255, 255, 255, 60);
-                    border-radius: 6px;
-                    padding: 6px 12px;
-                }
-                QComboBox QAbstractItemView {
-                    color: white;
-                    selection-background-color: rgba(100, 140, 200, 180);
-                }
-            """)
-            self.button_box.setMaxVisibleItems(8)
+            self.button_box = QHBoxLayout(self)
+        if self.mode == 'dropdown':
+            buttons[0].setMaxVisibleItems(8)
+        for btn in buttons:
+            if mode == 'dropdown':
+                btn.setStyleSheet(self.combo_box_style + scroll_bar_style)
+            else:
+                btn.setStyleSheet(self.button_style)
+            self.button_box.addWidget(btn)
         self.button_box.setEnabled(False)
         self.label.setText('')
+
+    def paintEvent(self, event):
+        super().paintEvent(event)
+        painter = QPainter(self)
+        pen = QPen(QColor(255, 255, 255, 70))
+        pen.setWidth(1)
+        painter.setPen(pen)
+        painter.drawRoundedRect(self.rect().adjusted(1, 1, -2, -2), 12, 12)
 
     def show_animated(self):
         start_w, start_h = self.start_size.width(), self.start_size.height()
@@ -116,9 +120,6 @@ class AnimatedDialog(QDialog):
     def create_contents(self):
         self.setFixedWidth(self.max_size.width())
         self.layout.addWidget(self.label)
-        self.layout.addWidget(self.button_box)
+        self.layout.addLayout(self.button_box)
         self.start_typing_effect()
         self.button_box.setEnabled(True)
-        if self.mode == 'vertical':
-            for btn in self.button_box.buttons():
-                btn.setFixedSize(self.label.parentWidget().size().width() - 44, 40)

@@ -1,10 +1,11 @@
-from PyQt5.QtCore import QRectF, QPoint, QTimer
+from PyQt5.QtCore import QRectF, QPoint, QTimer, Qt, QPropertyAnimation
 from PyQt5.QtGui import QColor, QPainter, QBrush, QPen
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QGraphicsScene, QGraphicsView, QGraphicsEllipseItem,
                              QGraphicsDropShadowEffect)
 
 from ui.pulse_wave import PulseWave
 from ui.flow_line import FlowLine
+from ui.styles import scroll_bar_style
 from eda.eda_handlers import EDA
 
 
@@ -12,22 +13,24 @@ class Pipeline(QWidget):
     def __init__(self, data):
         super().__init__()
         self.setWindowTitle('NoIT')
-        self.setFixedSize(2000, 1500)
 
         layout = QVBoxLayout(self)
-        self.scene = QGraphicsScene(0, 0, 2000, 1500)
+        self.scene_width = 1918
+        self.scene = QGraphicsScene(0, 0, self.scene_width, 1300)
         self.scene.setBackgroundBrush(QColor(22, 22, 35))
         self.view = QGraphicsView(self.scene)
+        self.view.setSceneRect(self.scene.sceneRect())
+        self.view.setStyleSheet(scroll_bar_style)
         self.view.setRenderHint(QPainter.Antialiasing)
-        self.node_radius = 30
-        layout.addWidget(self.view)
+        layout.addWidget(self.view, alignment=Qt.AlignLeft)
 
         self.eda = EDA(data, self)
         self.actions = (self.eda.handle_unimportant, self.eda.handle_duplicates, self.eda.handle_nulls,
                         self.eda.split_to_data_and_target, self.eda.handle_encoding)
         self.current_action = 0
+        self.node_radius = 30
         self.node_start_x = 200
-        self.node_step = 200
+        self.node_step = 400
         self.steps = []
         self.flows = []
         self.pulse_wave = None
@@ -35,9 +38,10 @@ class Pipeline(QWidget):
         self.activated_first = False
         self.fade_step = 0
         self.fade_timer = QTimer()
+        self.scroll_animation = None
 
-        for i in range(10):
-            node = self.create_node(self.node_start_x + i * self.node_step, self.geometry().height() // 2)
+        for i in range(2 * len(data.columns) + 4):
+            node = self.create_node(self.node_start_x + i * self.node_step, self.scene.height() // 2)
             self.scene.addItem(node)
             self.steps.append(node)
 
@@ -58,6 +62,24 @@ class Pipeline(QWidget):
         glow.setColor(QColor(255, 255, 255, 60))
         node.setGraphicsEffect(glow)
         return node
+
+    def expand_scene(self):
+        item_rect = self.steps[self.current].sceneBoundingRect()
+        current_rect = self.scene.sceneRect()
+        if item_rect.right() > current_rect.right() / 2:
+            current_rect.setWidth(current_rect.width() + self.node_step)
+            self.scene.setSceneRect(current_rect)
+            self.view.setSceneRect(current_rect)
+            self.animate_scroll_to(self.view.horizontalScrollBar().maximum() -
+                                   (current_rect.right() - item_rect.right() - self.scene_width // 2))
+
+    def animate_scroll_to(self, value):
+        scrollbar = self.view.horizontalScrollBar()
+        self.scroll_animation = QPropertyAnimation(scrollbar, b"value")
+        self.scroll_animation.setDuration(300)
+        self.scroll_animation.setStartValue(scrollbar.value())
+        self.scroll_animation.setEndValue(value)
+        self.scroll_animation.start()
 
     def set_node_active(self, node):
         color = QColor(160, 255, 245, 60)
@@ -93,7 +115,7 @@ class Pipeline(QWidget):
         self.eda.dialog.close()
 
         if not self.activated_first:
-            entry = QPoint(-80, self.steps[0].sceneBoundingRect().center().y())
+            entry = QPoint(0, self.steps[0].sceneBoundingRect().center().y())
             target = self.steps[0].sceneBoundingRect().center()
             target.setX(target.x() - self.node_radius)
             self.current += 1
@@ -117,6 +139,8 @@ class Pipeline(QWidget):
             flow = FlowLine(self.scene, p1, p2, on_finished=self.activate)
             flow.animate()
             self.flows.append(flow)
+
+        self.expand_scene()
 
     def activate(self):
         self.set_node_active(self.steps[self.current])

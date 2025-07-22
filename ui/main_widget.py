@@ -22,10 +22,3 @@ class MainWindow(QWidget):
         self.pipeline = Pipeline(data)
         self.stacked_widget.addWidget(self.pipeline)
         self.stacked_widget.setCurrentWidget(self.pipeline)
-
-    def moveEvent(self, event):
-        super().moveEvent(event)
-        for child in self.findChildren(AnimatedDialog):
-            child.move(QPoint(self.pipeline.steps[self.pipeline.current].x(),
-                              self.pipeline.steps[self.pipeline.current].y() - self.pipeline.node_radius) +
-                       self.pos() - QPoint(0, child.height() - child.start_size.height()))
