@@ -3,8 +3,8 @@ from PyQt5.QtGui import QColor, QPainter, QBrush, QPen
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QGraphicsScene, QGraphicsView, QGraphicsEllipseItem,
                              QGraphicsDropShadowEffect)
 
-from ui.pulse_wave import PulseWave
-from ui.flow_line import FlowLine
+from ui.ui_objects.pulse_wave import PulseWave
+from ui.ui_objects.flow_line import FlowLine
 from ui.styles import scroll_bar_style
 from eda.eda_handlers import EDA
 
@@ -123,7 +123,7 @@ class Pipeline(QWidget):
     def next_step(self):
         self.eda.dialog.close()
         self.flow_line_timer.stop()
-        self.flow.clear()
+        self.flow.remove_from_scene()
 
         if not self.activated_first:
             entry = QPoint(0, self.steps[0].sceneBoundingRect().center().y())

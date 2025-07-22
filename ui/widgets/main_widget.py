@@ -1,9 +1,7 @@
-from PyQt5.QtCore import QPoint
 from PyQt5.QtWidgets import QWidget, QStackedWidget, QVBoxLayout
 
-from ui.file_loader import CsvDropZone
-from ui.pipeline import Pipeline
-from ui.dialog_window import AnimatedDialog
+from ui.widgets.file_loader import CsvDropZone
+from ui.widgets.pipeline import Pipeline
 
 
 class MainWindow(QWidget):

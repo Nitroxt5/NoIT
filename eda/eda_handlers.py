@@ -3,7 +3,7 @@ import pandas as pd
 from PyQt5.QtCore import QPoint, QSize
 from PyQt5.QtWidgets import QPushButton, QComboBox, QGraphicsProxyWidget, QGraphicsItem
 
-from ui.dialog_window import AnimatedDialog
+from ui.widgets.dialog_window import AnimatedDialog
 from eda.encoding_handlers import encode_data
 
 

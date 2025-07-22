@@ -1,11 +1,12 @@
-from PyQt5.QtCore import QTimer, Qt, QPoint
+from PyQt5.QtCore import QTimer, Qt, QPoint, QObject
 from PyQt5.QtGui import QPen, QColor
 from PyQt5.QtWidgets import QGraphicsScene
 
 
-class FlowLine:
+class FlowLine(QObject):
     def __init__(self, scene: QGraphicsScene, p1=QPoint(0, 0), p2=QPoint(0, 0), on_finished=None,
                  pen_style=Qt.SolidLine, speed=0.03):
+        super().__init__()
         self.scene = scene
         self.p1 = p1
         self.p2 = p2
@@ -39,5 +40,6 @@ class FlowLine:
         y = self.p1.y() + (self.p2.y() - self.p1.y()) * self.progress
         self.line.setLine(self.p1.x(), self.p1.y(), x, y)
 
-    def clear(self):
+    def remove_from_scene(self):
+        self.timer.stop()
         self.scene.removeItem(self.line)
