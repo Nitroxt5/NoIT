@@ -4,10 +4,11 @@ from PyQt5.QtWidgets import (QLabel, QVBoxLayout, QHBoxLayout, QSizePolicy, QWid
                              QTableWidgetItem, QHeaderView)
 
 from ui.styles import scroll_bar_style, table_style, combo_box_style, dialog_background_style, button_style
+from alg.algs_list import algs
 
 
 class AlgChooser(QWidget):
-    def __init__(self, buttons: list, parent=None, table=None, size=QSize(1600, 1200), pos=QPoint(0, 0)):
+    def __init__(self, buttons: list, parent=None, size=QSize(1600, 1200), pos=QPoint(0, 0)):
         super().__init__(parent)
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
         self.setStyleSheet(dialog_background_style)
@@ -16,7 +17,7 @@ class AlgChooser(QWidget):
         self.start_size = QSize(20, 20)
         self.max_size = size
         self.buttons = buttons
-        self.possible_algs = {'SVM': 0, 'LogReg': 0, 'DecisionTree': 0, 'KNN': 0}
+        self.possible_algs = {alg: 0 for alg in algs.keys()}
 
         self.label = QLabel()
         self.label.setWordWrap(True)
@@ -31,10 +32,7 @@ class AlgChooser(QWidget):
         self.dropdown.addItems(self.possible_algs.keys())
         self.dropdown.activated.connect(self.add_alg)
 
-        if table:
-            self.table = table
-        else:
-            self.table = QTableWidget()
+        self.table = QTableWidget()
         self.table.horizontalHeader().setVisible(False)
         self.table.setStyleSheet(table_style + scroll_bar_style)
         self.table.setColumnCount(1)

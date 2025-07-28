@@ -26,7 +26,8 @@ class Pipeline(QWidget):
         self.eda = EDA(data, self)
         self.tester = Tester(self)
         self.actions = (self.eda.handle_unimportant, self.eda.handle_duplicates, self.eda.handle_nulls,
-                        self.eda.split_to_data_and_target, self.eda.handle_encoding, self.tester.get_algs)
+                        self.eda.split_to_data_and_target, self.eda.handle_encoding, self.tester.get_algs,
+                        self.tester.perform_testing)
         self.current_action = 0
         self.node_radius = 30
         self.node_start_x = 200
