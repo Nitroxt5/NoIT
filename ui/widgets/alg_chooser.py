@@ -1,42 +1,55 @@
 from PyQt5.QtCore import Qt, QTimer, QSequentialAnimationGroup, QRect, QPropertyAnimation, QEasingCurve, QPoint, QSize
 from PyQt5.QtGui import QPainter, QColor, QPen
-from PyQt5.QtWidgets import QLabel, QVBoxLayout, QSizePolicy, QWidget, QHBoxLayout
+from PyQt5.QtWidgets import (QLabel, QVBoxLayout, QHBoxLayout, QSizePolicy, QWidget, QComboBox, QTableWidget,
+                             QTableWidgetItem, QHeaderView)
 
-from ui.styles import scroll_bar_style, button_style, combo_box_style, dialog_background_style
+from ui.styles import scroll_bar_style, table_style, combo_box_style, dialog_background_style, button_style
 
 
-class AnimatedDialog(QWidget):
-    def __init__(self, buttons: list, parent=None, text='', size=QSize(400, 300), pos=QPoint(0, 0), mode='horizontal'):
+class AlgChooser(QWidget):
+    def __init__(self, buttons: list, parent=None, table=None, size=QSize(1600, 1200), pos=QPoint(0, 0)):
         super().__init__(parent)
-        self.mode = mode
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
         self.setStyleSheet(dialog_background_style)
+        self.text = 'Choose algorithms to test:'
         self.initial_pos = pos
         self.start_size = QSize(20, 20)
         self.max_size = size
-        self.text = text
-        self.label = QLabel(text)
+        self.buttons = buttons
+        self.possible_algs = {'SVM': 0, 'LogReg': 0, 'DecisionTree': 0, 'KNN': 0}
+
+        self.label = QLabel()
         self.label.setWordWrap(True)
         self.label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.MinimumExpanding)
-        self.label.setStyleSheet('color: white; font-size: 25px;')
+        self.label.setMaximumHeight(self.label.sizeHint().height() + 20)
+        self.label.setAlignment(Qt.AlignCenter)
+        self.label.setStyleSheet('color: white; font-size: 30px;')
+
+        self.dropdown = QComboBox()
+        self.dropdown.setMaxVisibleItems(8)
+        self.dropdown.setStyleSheet(combo_box_style + scroll_bar_style)
+        self.dropdown.addItems(self.possible_algs.keys())
+        self.dropdown.activated.connect(self.add_alg)
+
+        if table:
+            self.table = table
+        else:
+            self.table = QTableWidget()
+        self.table.horizontalHeader().setVisible(False)
+        self.table.setStyleSheet(table_style + scroll_bar_style)
+        self.table.setColumnCount(1)
+        self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+
         self.layout = QVBoxLayout(self)
         self.typing_index = 0
         self.typing_timer = QTimer()
         self.sequence = QSequentialAnimationGroup()
-        if self.mode == 'vertical':
-            self.button_box = QVBoxLayout(self)
-        else:
-            self.button_box = QHBoxLayout(self)
-        if self.mode == 'dropdown':
-            buttons[0].setMaxVisibleItems(8)
-        for btn in buttons:
-            if mode == 'dropdown':
-                btn.setStyleSheet(combo_box_style + scroll_bar_style)
-            else:
-                btn.setStyleSheet(button_style)
-            self.button_box.addWidget(btn)
-        self.button_box.setEnabled(False)
-        self.label.setText('')
+
+    def add_alg(self):
+        item = QTableWidgetItem(self.dropdown.currentText() + str(self.possible_algs[self.dropdown.currentText()]))
+        self.possible_algs[self.dropdown.currentText()] += 1
+        self.table.insertRow(self.algs_count)
+        self.table.setItem(self.algs_count - 1, 0, item)
 
     def paintEvent(self, event):
         super().paintEvent(event)
@@ -93,7 +106,16 @@ class AnimatedDialog(QWidget):
     def create_contents(self, scroll_bar):
         self.setFixedWidth(self.max_size.width())
         self.layout.addWidget(self.label)
-        self.layout.addLayout(self.button_box)
+        self.layout.addWidget(self.dropdown)
+        self.layout.addWidget(self.table)
+        btn_layout = QHBoxLayout()
+        for btn in self.buttons:
+            btn_layout.addWidget(btn)
+            btn.setStyleSheet(button_style)
+        self.layout.addLayout(btn_layout)
         self.start_typing_effect()
-        self.button_box.setEnabled(True)
         scroll_bar.setEnabled(True)
+
+    @property
+    def algs_count(self):
+        return self.table.rowCount()

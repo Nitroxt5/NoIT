@@ -34,3 +34,54 @@ scroll_bar_style = """
         background: none;
     }
     """
+
+table_style = """            
+    QTableWidget {
+        color: white;
+        gridline-color: rgba(255,255,255,40);
+        border: none;
+    }
+    
+    QTableCornerButton::section {
+        background-color: rgb(20, 40, 80);
+    }
+    
+    QHeaderView::section {
+        background-color: rgba(255,255,255,40);
+        color: white;
+        font-weight: bold;
+        border: none;
+        padding: 4px;
+    }
+    """
+
+button_style = """
+    QPushButton {
+        color: white;
+        background-color: rgba(20, 40, 80, 100);
+        border: 1px solid rgba(255, 255, 255, 60);
+        border-radius: 6px;
+        padding: 6px 12px;
+    }
+    QPushButton:hover {
+        background-color: rgba(100, 140, 200, 180);
+    }"""
+
+combo_box_style = """
+    QComboBox {
+        color: white;
+        background-color: rgba(20, 40, 80, 100);
+        border: 1px solid rgba(255, 255, 255, 60);
+        border-radius: 6px;
+        padding: 6px 12px;
+    }
+    QComboBox QAbstractItemView {
+        color: white;
+        selection-background-color: rgba(100, 140, 200, 180);
+    }"""
+
+dialog_background_style = """
+    background-color: rgba(20, 40, 80, 160);
+    border: 1px solid rgba(255, 255, 255, 70);
+    border-radius: 12px;
+    """

@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QFontMetrics
 
-from ui.styles import scroll_bar_style
+from ui.styles import scroll_bar_style, table_style
 
 
 class CsvDropZone(QWidget):
@@ -18,8 +18,8 @@ class CsvDropZone(QWidget):
         self.on_success_callback = on_success_callback
         self.df = pd.DataFrame()
 
-        self.label = QLabel("Drop CSV here or click and choose it")
-        self.label.setFont(QFont("Segoe UI", 11))
+        self.label = QLabel('Drop CSV here or click and choose it')
+        self.label.setFont(QFont('Segoe UI', 11))
         self.label.setAlignment(Qt.AlignCenter)
 
         self.setStyleSheet("""
@@ -46,24 +46,7 @@ class CsvDropZone(QWidget):
             QPushButton:hover {
                 background-color: rgba(47, 58, 57, 200);
             }
-
-            QTableWidget {
-                color: white;
-                gridline-color: rgba(255,255,255,40);
-                border: none;
-            }
-            QTableCornerButton::section {
-                background-color: rgb(20, 40, 80);
-            }
-
-            QHeaderView::section {
-                background-color: rgba(255,255,255,40);
-                color: white;
-                font-weight: bold;
-                border: none;
-                padding: 4px;
-            }
-        """ + scroll_bar_style)
+        """ + table_style + scroll_bar_style)
 
         self.table = QTableWidget()
         self.table.setCornerButtonEnabled(False)
@@ -149,11 +132,19 @@ class CsvDropZone(QWidget):
             if self.df.empty:
                 self.label.setText('File is empty')
                 self.table.clear()
+                self.table.setColumnCount(0)
+                self.table.setRowCount(0)
+                self.table.setEnabled(False)
+                self.table.setVisible(False)
+                self.continue_btn.setEnabled(False)
+                self.continue_btn.setVisible(False)
                 return
 
             headers = self.df.columns.tolist()
             preview = self.df.head(100).values.tolist()
 
+            self.table.setEnabled(True)
+            self.table.setVisible(True)
             self.table.clear()
             self.table.setColumnCount(len(headers))
             self.table.setRowCount(len(preview))
@@ -171,5 +162,5 @@ class CsvDropZone(QWidget):
             self.layout.addWidget(self.continue_btn)
             self.adapt_table_width()
         except Exception as e:
-            self.label.setText(f"Error: {e}")
+            self.label.setText(f'Error: {e}')
             self.table.clear()

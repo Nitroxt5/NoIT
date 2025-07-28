@@ -30,13 +30,13 @@ class EDA:
         action()
         self.pipeline.next_step()
 
-    def create_dialog_window(self, buttons: list, question='', size=QSize(400, 200), mode='horizontal'):
+    def create_dialog_window(self, buttons: list, question='', size=QSize(400, 300), mode='horizontal'):
         pos = self.pipeline.view.mapToScene(self.pipeline.view.viewport().rect().topLeft())
         pos = QPoint(pos.x() + self.pipeline.steps[self.pipeline.current].x() -
                      self.pipeline.view.horizontalScrollBar().value(),
                      pos.y() + self.pipeline.steps[self.pipeline.current].y() - self.pipeline.node_radius)
         self.dialog = AnimatedDialog(buttons, self.pipeline.parent().parent(), question, size, pos, mode)
-        self.dialog.show_animated()
+        self.dialog.show_animated(self.pipeline.view.horizontalScrollBar())
         proxy = QGraphicsProxyWidget()
         proxy.setWidget(self.dialog)
         proxy.setFlags(QGraphicsItem.ItemIgnoresParentOpacity | QGraphicsItem.ItemIgnoresTransformations)
@@ -145,8 +145,7 @@ class EDA:
         if not self.first:
             return True
         self.first = False
-        button_names = self.data.columns
-        self.dropdown.addItems(button_names)
+        self.dropdown.addItems(self.data.columns)
         self.dropdown.currentIndexChanged.connect(lambda: self.on_click(self.on_target_selection,
                                                                         self.dropdown.currentText()))
         self.create_dialog_window([self.dropdown], 'Choose a target variable:', mode='dropdown')

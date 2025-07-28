@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QLabel, QVBoxLayout, QWidget
 
 
 class StaticInfo(QWidget):
-    def __init__(self, parent=None, text='', answer='', size=QSize(400, 200), pos=QPoint(0, 0)):
+    def __init__(self, parent=None, text='', answer='', size=QSize(400, 300), pos=QPoint(0, 0)):
         super().__init__(parent)
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
         self.setStyleSheet("""

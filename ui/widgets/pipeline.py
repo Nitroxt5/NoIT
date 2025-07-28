@@ -7,13 +7,12 @@ from ui.ui_objects.pulse_wave import PulseWave
 from ui.ui_objects.flow_line import FlowLine
 from ui.styles import scroll_bar_style
 from eda.eda_handlers import EDA
+from alg.handle_testing import Tester
 
 
 class Pipeline(QWidget):
     def __init__(self, data):
         super().__init__()
-        self.setWindowTitle('NoIT')
-
         layout = QVBoxLayout(self)
         self.scene_width = 1919
         self.scene = QGraphicsScene(0, 0, self.scene_width, 1300)
@@ -25,8 +24,9 @@ class Pipeline(QWidget):
         layout.addWidget(self.view, alignment=Qt.AlignLeft)
 
         self.eda = EDA(data, self)
+        self.tester = Tester(self)
         self.actions = (self.eda.handle_unimportant, self.eda.handle_duplicates, self.eda.handle_nulls,
-                        self.eda.split_to_data_and_target, self.eda.handle_encoding)
+                        self.eda.split_to_data_and_target, self.eda.handle_encoding, self.tester.get_algs)
         self.current_action = 0
         self.node_radius = 30
         self.node_start_x = 200
@@ -121,7 +121,9 @@ class Pipeline(QWidget):
         self.pulse_wave.remove_from_scene()
 
     def next_step(self):
+        self.view.horizontalScrollBar().setEnabled(False)
         self.eda.dialog.close()
+        self.tester.alg_chooser.close()
         self.flow_line_timer.stop()
         self.flow.remove_from_scene()
 
