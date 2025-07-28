@@ -2,13 +2,12 @@ import numpy as np
 import pandas as pd
 
 
-class Alg3:
+class NegAlg:
     def __init__(self):
         self.class_count = 0
         self.x = np.ndarray(0)
         self.y = np.ndarray(0)
         self.a = np.ndarray(0)
-        self.d = 0
         self.x_test = np.ndarray(0)
         self.is_fit = False
 
@@ -24,13 +23,6 @@ class Alg3:
             b[i] = split_x[i].sum(0) / len(split_x[i])
         avg = b.sum(0) / self.class_count
         self.a = np.abs(b - avg)
-        a_sum = self.a.sum(1)
-        s_vals = np.zeros((self.class_count, len(self.x), len(self.x)))
-        for cls in range(self.class_count):
-            for j in range(1, len(split_x[cls])):
-                for i in range(j + 1, len(split_x[cls])):
-                    s_vals[cls][j][i] = self._s(self.a[cls], split_x[cls][j], split_x[cls][i], a_sum[cls])
-        self.d = s_vals.max()
         self.is_fit = True
 
     def predict(self, x_test: pd.DataFrame):
@@ -41,9 +33,9 @@ class Alg3:
         for x in self.x_test:
             s_vals = np.full((len(self.a), len(self.x)), 1000.)
             for i in range(len(self.x)):
-                s_vals[self.y[i]][i] = max(0, 1 - self._s(self.a[self.y[i]], x, self.x[i], a_sum[self.y[i]]) / self.d)
-            f = s_vals.max(1)
-            y_pred.append(f.argmax())
+                s_vals[self.y[i]][i] = self._s(self.a[self.y[i]], x, self.x[i], a_sum[self.y[i]])
+            f = s_vals.min(1)
+            y_pred.append(f.argmin())
         return np.array(y_pred)
 
     @staticmethod

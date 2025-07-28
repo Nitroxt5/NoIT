@@ -2,12 +2,13 @@ import numpy as np
 import pandas as pd
 
 
-class Alg1:
+class MeanAlg:
     def __init__(self):
         self.class_count = 0
         self.x = np.ndarray(0)
         self.y = np.ndarray(0)
         self.a = np.ndarray(0)
+        self.d = 0
         self.x_test = np.ndarray(0)
         self.is_fit = False
 
@@ -23,6 +24,13 @@ class Alg1:
             b[i] = split_x[i].sum(0) / len(split_x[i])
         avg = b.sum(0) / self.class_count
         self.a = np.abs(b - avg)
+        a_sum = self.a.sum(1)
+        s_vals = np.zeros((self.class_count, len(self.x), len(self.x)))
+        for cls in range(self.class_count):
+            for j in range(1, len(split_x[cls])):
+                for i in range(j + 1, len(split_x[cls])):
+                    s_vals[cls][j][i] = self._s(self.a[cls], split_x[cls][j], split_x[cls][i], a_sum[cls])
+        self.d = s_vals.max()
         self.is_fit = True
 
     def predict(self, x_test: pd.DataFrame):
@@ -31,15 +39,15 @@ class Alg1:
         a_sum = self.a.sum(1)
         y_pred = []
         for x in self.x_test:
-            s_vals = np.zeros((len(self.a), len(self.x)))
+            s_vals = np.full((len(self.a), len(self.x)), 1000.)
             for i in range(len(self.x)):
-                s_vals[self.y[i]][i] = self._s(self.a[self.y[i]], x, self.x[i], a_sum[self.y[i]])
+                s_vals[self.y[i]][i] = max(0, 1 - self._s(self.a[self.y[i]], x, self.x[i], a_sum[self.y[i]]) / self.d)
             f = s_vals.max(1)
             y_pred.append(f.argmax())
-        return y_pred
+        return np.array(y_pred)
 
     @staticmethod
     def _s(a, x1, x2, a_sum):
         a_positive = a[x1 == x2]
         a_negative = a[x1 != x2]
-        return (a_positive.sum() - a_negative.sum()) / a_sum
+        return 1 - ((a_positive.sum() - a_negative.sum()) / a_sum)
