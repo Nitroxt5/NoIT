@@ -89,7 +89,7 @@ class CsvDropZone(QWidget):
 
     def on_continue(self):
         if self.on_success_callback:
-            self.on_success_callback(self.df)
+            self.on_success_callback(self.df, self.path.split("/")[-1].rpartition('.')[0])
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:

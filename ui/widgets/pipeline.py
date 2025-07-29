@@ -7,11 +7,12 @@ from ui.ui_objects.pulse_wave import PulseWave
 from ui.ui_objects.flow_line import FlowLine
 from ui.styles import scroll_bar_style
 from eda.eda_handlers import EDA
-from alg.handle_testing import Tester
+from alg.testing_handlers import Tester
+from alg.report_maker import Reporter
 
 
 class Pipeline(QWidget):
-    def __init__(self, data):
+    def __init__(self, data, data_name: str):
         super().__init__()
         layout = QVBoxLayout(self)
         self.scene_width = 1919
@@ -23,11 +24,13 @@ class Pipeline(QWidget):
         self.view.setRenderHint(QPainter.Antialiasing)
         layout.addWidget(self.view, alignment=Qt.AlignLeft)
 
+        self.data_name = data_name
         self.eda = EDA(data, self)
         self.tester = Tester(self)
+        self.reporter = Reporter(self)
         self.actions = (self.eda.handle_unimportant, self.eda.handle_duplicates, self.eda.handle_nulls,
                         self.eda.split_to_data_and_target, self.eda.handle_encoding, self.tester.get_algs,
-                        self.tester.perform_testing)
+                        self.tester.perform_testing, self.reporter.create_report)
         self.current_action = 0
         self.node_radius = 30
         self.node_start_x = 200

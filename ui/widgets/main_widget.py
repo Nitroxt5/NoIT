@@ -16,7 +16,7 @@ class MainWindow(QWidget):
         layout = QVBoxLayout(self)
         layout.addWidget(self.stacked_widget)
 
-    def open_pipeline(self, data):
-        self.pipeline = Pipeline(data)
+    def open_pipeline(self, data, data_name: str):
+        self.pipeline = Pipeline(data, data_name)
         self.stacked_widget.addWidget(self.pipeline)
         self.stacked_widget.setCurrentWidget(self.pipeline)
