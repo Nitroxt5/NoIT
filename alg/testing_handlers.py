@@ -100,3 +100,5 @@ class Tester(QThread):
         for row in range(self.alg_chooser.algs_count):
             self.test_alg(row, x_train, x_test, y_train, y_test)
             self.progress_changed.emit(ceil((row + 1) / self.alg_chooser.algs_count * 100))
+        if self.alg_chooser.algs_count == 0:
+            self.progress_changed.emit(self.progress_bar.progress.maximum())
