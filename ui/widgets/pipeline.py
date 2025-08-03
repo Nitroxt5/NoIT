@@ -96,14 +96,15 @@ class Pipeline(QWidget):
         glow.setColor(QColor(0, 255, 255, 140))
         node.setGraphicsEffect(glow)
 
-        p1 = self.steps[self.current].sceneBoundingRect().center()
-        p1.setX(p1.x() + self.node_radius)
-        p2 = self.steps[self.current + 1].sceneBoundingRect().center()
-        p2.setX(p2.x() - self.node_radius)
-        self.flow = FlowLine(self.scene, p1, p2, pen_style=Qt.DashLine)
-        self.flow_line_timer = QTimer()
-        self.flow_line_timer.timeout.connect(self.flow.animate)
-        self.flow_line_timer.start(1100)
+        if self.current_action < len(self.actions) - 2:
+            p1 = self.steps[self.current].sceneBoundingRect().center()
+            p1.setX(p1.x() + self.node_radius)
+            p2 = self.steps[self.current + 1].sceneBoundingRect().center()
+            p2.setX(p2.x() - self.node_radius)
+            self.flow = FlowLine(self.scene, p1, p2, pen_style=Qt.DashLine)
+            self.flow_line_timer = QTimer()
+            self.flow_line_timer.timeout.connect(self.flow.animate)
+            self.flow_line_timer.start(1100)
         self.pulse_wave = PulseWave(self.scene, node.sceneBoundingRect().center())
 
         try:
@@ -168,6 +169,8 @@ class Pipeline(QWidget):
             pass
 
     def fade_in_node(self, node):
+        if self.current_action == len(self.actions) - 1:
+            return
         steps = 20
         self.fade_step = 0
 

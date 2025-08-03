@@ -90,6 +90,7 @@ class ProgressBar(QWidget):
             return
         self.progress.setVisible(False)
         self.layout.removeWidget(self.progress)
+        self.typing_timer.stop()
         self.label.setText(self.end_text)
         h_layout = QHBoxLayout()
         for btn in self.buttons:
