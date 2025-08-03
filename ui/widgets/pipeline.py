@@ -45,7 +45,7 @@ class Pipeline(QWidget):
         self.flow_line_timer = QTimer()
         self.scroll_animation = None
 
-        for i in range(2 * len(data.columns) + 4):
+        for i in range(2 * len(data.columns) + 10):
             node = self.create_node(self.node_start_x + i * self.node_step, self.scene.height() // 2)
             self.scene.addItem(node)
             self.steps.append(node)
@@ -110,6 +110,7 @@ class Pipeline(QWidget):
             while self.actions[self.current_action]():
                 self.current_action += 1
                 self.eda.first = True
+                self.tester.first = True
         except IndexError:
             pass
 
@@ -128,6 +129,7 @@ class Pipeline(QWidget):
         self.view.horizontalScrollBar().setEnabled(False)
         self.eda.dialog.close()
         self.tester.alg_chooser.close()
+        self.tester.progress_bar.close()
         self.flow_line_timer.stop()
         self.flow.remove_from_scene()
 

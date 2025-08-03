@@ -3,6 +3,8 @@ import GPUtil
 import psutil
 
 from pathlib import Path
+
+from PyQt5.QtWidgets import QPushButton, QApplication
 from sklearn.metrics import precision_recall_fscore_support, accuracy_score
 
 
@@ -26,7 +28,14 @@ class Reporter:
         path.parent.mkdir(parents=True, exist_ok=True)
         with open(path, 'w', encoding='utf-8') as file:
             file.write(self.report)
+        self.create_info_window(f'Report `{self.pipeline.data_name}_report.html` is done. '
+                                f'It can be seen in `reports` folder.')
         return False
+
+    def create_info_window(self, info=''):
+        end_btn = QPushButton('End')
+        end_btn.clicked.connect(QApplication.quit)
+        self.pipeline.eda.create_dialog_window([end_btn], info)
 
     @staticmethod
     def get_device_info():
@@ -50,7 +59,8 @@ class Reporter:
         for alg, true_pred in self.pipeline.tester.true_pred.items():
             text += f'<tr><td>{alg}</td>'
             accuracy = accuracy_score(true_pred[0], true_pred[1])
-            precision, recall, f1, _ = precision_recall_fscore_support(true_pred[0], true_pred[1], average='macro')
+            precision, recall, f1, _ = precision_recall_fscore_support(true_pred[0], true_pred[1],
+                                                                       average='macro', zero_division=0)
             text += (f'<td>{accuracy * 100:.2f}%</td><td>{precision * 100:.2f}%</td>'
                      f'<td>{recall * 100:.2f}%</td><td>{f1 * 100:.2f}%</td>'
                      f'<td>{self.pipeline.tester.times[alg][0]:.5f} s</td>'

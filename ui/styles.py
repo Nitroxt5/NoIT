@@ -85,3 +85,18 @@ dialog_background_style = """
     border: 1px solid rgba(255, 255, 255, 70);
     border-radius: 12px;
     """
+
+progress_bar_style = """
+    QProgressBar {
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        background-color: rgba(255, 255, 255, 0.1);
+        text-align: center;
+        color: white;
+    }
+    QProgressBar::chunk {
+        background-color: rgba(0, 150, 255, 0.4);
+        border-radius: 10px;
+        margin: 1px;
+    }
+    """
