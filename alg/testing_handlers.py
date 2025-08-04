@@ -1,8 +1,6 @@
-# import pandas as pd
 from PyQt5.QtCore import QPoint, QThread, pyqtSignal
-from PyQt5.QtWidgets import QGraphicsProxyWidget, QGraphicsItem, QPushButton, QApplication
+from PyQt5.QtWidgets import QGraphicsProxyWidget, QGraphicsItem, QPushButton
 from sklearn.model_selection import train_test_split, GridSearchCV
-# from sklearn.ensemble import RandomForestClassifier
 from time import perf_counter
 from math import ceil
 
