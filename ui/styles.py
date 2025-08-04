@@ -100,3 +100,29 @@ progress_bar_style = """
         margin: 1px;
     }
     """
+
+file_loader_style = """
+    QWidget {
+        background-color: rgb(20, 40, 80);
+        border: 1px solid rgba(255, 255, 255, 60);
+        color: white;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    QLabel {
+        font-size: 30px;
+    }
+
+    QPushButton {
+        color: white;
+        background-color: rgb(47, 58, 57);
+        border: 1px solid rgba(255, 255, 255, 40);
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-size: 30px;
+    }
+
+    QPushButton:hover {
+        background-color: rgba(47, 58, 57, 200);
+    }
+    """

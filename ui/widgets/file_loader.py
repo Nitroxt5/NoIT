@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QFontMetrics
 
-from ui.styles import scroll_bar_style, table_style
+from ui.styles import scroll_bar_style, table_style, file_loader_style
 
 
 class CsvDropZone(QWidget):
@@ -22,31 +22,7 @@ class CsvDropZone(QWidget):
         self.label.setFont(QFont('Segoe UI', 11))
         self.label.setAlignment(Qt.AlignCenter)
 
-        self.setStyleSheet("""
-            QWidget {
-                background-color: rgb(20, 40, 80);
-                border: 1px solid rgba(255, 255, 255, 60);
-                color: white;
-                font-family: 'Segoe UI', sans-serif;
-            }
-
-            QLabel {
-                font-size: 30px;
-            }
-
-            QPushButton {
-                color: white;
-                background-color: rgb(47, 58, 57);
-                border: 1px solid rgba(255, 255, 255, 40);
-                border-radius: 6px;
-                padding: 6px 12px;
-                font-size: 30px;
-            }
-
-            QPushButton:hover {
-                background-color: rgba(47, 58, 57, 200);
-            }
-        """ + table_style + scroll_bar_style)
+        self.setStyleSheet(file_loader_style + table_style + scroll_bar_style)
 
         self.table = QTableWidget()
         self.table.setCornerButtonEnabled(False)

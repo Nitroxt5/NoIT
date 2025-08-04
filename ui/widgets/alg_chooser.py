@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QLabel, QHBoxLayout, QComboBox, QTableWidget, QTable
 
 from ui.styles import scroll_bar_style, table_style, combo_box_style, button_style
 from ui.widgets.animated_window import AnimatedWindow
+from ui.ui_objects.draggable_table import DraggableTable
 from alg.algs_list import algs
 
 
@@ -22,7 +23,7 @@ class AlgChooser(AnimatedWindow):
         self.dropdown.addItems(self.possible_algs.keys())
         self.dropdown.activated.connect(self.add_alg)
 
-        self.table = QTableWidget()
+        self.table = DraggableTable()
         self.table.horizontalHeader().setVisible(False)
         self.table.setStyleSheet(table_style + scroll_bar_style)
         self.table.setColumnCount(1)
