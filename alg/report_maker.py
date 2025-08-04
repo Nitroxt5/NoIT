@@ -34,7 +34,7 @@ class Reporter:
 
     def create_info_window(self, info=''):
         end_btn = QPushButton('End')
-        end_btn.clicked.connect(QApplication.quit)
+        end_btn.clicked.connect(self.pipeline.parent().parent().open_file_loader)
         self.pipeline.eda.create_dialog_window([end_btn], info)
 
     @staticmethod

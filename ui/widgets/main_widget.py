@@ -10,7 +10,8 @@ class MainWindow(QWidget):
         self.setWindowTitle("NoIT")
         self.setFixedSize(2000, 1500)
         self.stacked_widget = QStackedWidget(self)
-        self.stacked_widget.addWidget(CsvDropZone(self.open_pipeline))
+        self.file_loader = CsvDropZone(self.open_pipeline)
+        self.stacked_widget.addWidget(self.file_loader)
         self.pipeline = None
 
         layout = QVBoxLayout(self)
@@ -20,3 +21,6 @@ class MainWindow(QWidget):
         self.pipeline = Pipeline(data, data_name)
         self.stacked_widget.addWidget(self.pipeline)
         self.stacked_widget.setCurrentWidget(self.pipeline)
+
+    def open_file_loader(self):
+        self.stacked_widget.setCurrentWidget(self.file_loader)
