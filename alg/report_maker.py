@@ -4,7 +4,7 @@ import psutil
 
 from pathlib import Path
 
-from PyQt5.QtWidgets import QPushButton, QApplication
+from PyQt5.QtWidgets import QPushButton
 from sklearn.metrics import precision_recall_fscore_support, accuracy_score
 
 
@@ -19,39 +19,39 @@ class Reporter:
         if not self.first:
             return True
         self.first = False
-        self.report += self.get_device_info()
-        self.report += self.get_dataset_info()
-        self.report += self.get_results()
-        self.report += self.get_styles()
+        self.report += self._get_device_info()
+        self.report += self._get_dataset_info()
+        self.report += self._get_results()
+        self.report += self._get_styles()
         self.report += '</body></html>'
         path = Path(f'reports\\{self.pipeline.data_name}_report.html')
         path.parent.mkdir(parents=True, exist_ok=True)
         with open(path, 'w', encoding='utf-8') as file:
             file.write(self.report)
-        self.create_info_window(f'Report `{self.pipeline.data_name}_report.html` is done. '
-                                f'It can be seen in `reports` folder.')
+        self._create_info_window(f'Report `{self.pipeline.data_name}_report.html` is done. '
+                                 f'It can be seen in `reports` folder.')
         return False
 
-    def create_info_window(self, info=''):
+    def _create_info_window(self, info=''):
         end_btn = QPushButton('End')
         end_btn.clicked.connect(self.pipeline.parent().parent().open_file_loader)
         self.pipeline.eda.create_dialog_window([end_btn], info)
 
     @staticmethod
-    def get_device_info():
+    def _get_device_info():
         text = f'CPU: {cpuinfo.get_cpu_info()["brand_raw"]}.<br>'
         text += f'Memory: {round(psutil.virtual_memory().total / 1024**3)}GB.<br>GPU: '
         for gpu in GPUtil.getGPUs():
             text += f'{gpu.name}.<br>'
         return f'<p>{text}</p>'
 
-    def get_dataset_info(self):
+    def _get_dataset_info(self):
         text = (f'Testing on `{self.pipeline.data_name}` dataset.<br>'
                 f'Dataset consists of {len(self.pipeline.eda.data)} rows and '
                 f'{len(self.pipeline.eda.data.columns)} columns.')
         return f'<p>{text}</p>'
 
-    def get_results(self):
+    def _get_results(self):
         text = f'<table border="1"><tr>'
         for col in self.column_names:
             text += f'<th>{col}</th>'
@@ -68,6 +68,6 @@ class Reporter:
         return text
 
     @staticmethod
-    def get_styles():
+    def _get_styles():
         text = '<style> td { text-align: center; vertical-align: middle; } </style>'
         return text

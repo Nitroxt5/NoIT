@@ -24,7 +24,7 @@ class StaticInfo(QWidget):
         self.ans_label.setMaximumHeight(self.ans_label.sizeHint().height() + 4)
         self.layout = QVBoxLayout(self)
         self.setGeometry(QRect(self.pos, self.size))
-        self.create_contents()
+        self._create_contents()
         self.show()
 
     def paintEvent(self, event):
@@ -35,7 +35,7 @@ class StaticInfo(QWidget):
         painter.setPen(pen)
         painter.drawRoundedRect(self.rect().adjusted(1, 1, -2, -2), 12, 12)
 
-    def create_contents(self):
+    def _create_contents(self):
         self.setFixedWidth(self.size.width())
         self.text_label.setWordWrap(True)
         self.ans_label.setWordWrap(True)

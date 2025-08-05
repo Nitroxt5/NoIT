@@ -21,10 +21,10 @@ class PulseWave(QObject):
         self.scene.addItem(self.ellipse)
 
         self.timer = QTimer()
-        self.timer.timeout.connect(self.animate)
+        self.timer.timeout.connect(self._animate)
         self.timer.start(30)
 
-    def animate(self):
+    def _animate(self):
         if self.radius > self.max_radius:
             self.radius = self.base_radius
         alpha = int(200 * (1 - self.radius / self.max_radius))

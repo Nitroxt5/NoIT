@@ -1,6 +1,8 @@
-from PyQt5.QtWidgets import QTableWidget
+from PyQt5.QtWidgets import QTableWidget, QPushButton
 from PyQt5.QtCore import Qt, QMimeData, QByteArray
 from PyQt5.QtGui import QDrag
+
+from ui.styles import delete_button_style
 
 
 class DraggableTable(QTableWidget):
@@ -13,7 +15,22 @@ class DraggableTable(QTableWidget):
         self.setSelectionBehavior(QTableWidget.SelectRows)
         self.setDragDropMode(QTableWidget.InternalMove)
 
-    def startDrag(self, supportedActions):
+    def insert_row(self, row):
+        self.insertRow(row)
+        self._update_buttons()
+
+    def remove_row(self, row):
+        self.removeRow(row)
+        self._update_buttons()
+
+    def _update_buttons(self):
+        for r in range(self.rowCount()):
+            btn = QPushButton('✖')
+            btn.setStyleSheet(delete_button_style)
+            btn.clicked.connect(lambda _, row=r: self.remove_row(row))
+            self.setCellWidget(r, self.columnCount() - 1, btn)
+
+    def startDrag(self, supported_actions):
         drag = QDrag(self)
         mime_data = QMimeData()
         row = self.currentRow()

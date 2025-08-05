@@ -46,14 +46,14 @@ class Pipeline(QWidget):
         self.scroll_animation = None
 
         for i in range(2 * len(data.columns) + 10):
-            node = self.create_node(self.node_start_x + i * self.node_step, self.scene.height() // 2)
+            node = self._create_node(self.node_start_x + i * self.node_step, self.scene.height() // 2)
             self.scene.addItem(node)
             self.steps.append(node)
 
-        self.fade_in_node(self.steps[0])
+        self._fade_in_node(self.steps[0])
         self.next_step()
 
-    def create_node(self, x, y):
+    def _create_node(self, x, y):
         node = QGraphicsEllipseItem(QRectF(0, 0, self.node_radius * 2, self.node_radius * 2))
         node.setBrush(QBrush(QColor(255, 255, 255, 30)))
         node.setPen(QPen(QColor(255, 255, 255, 80), 1.5))
@@ -68,17 +68,17 @@ class Pipeline(QWidget):
         node.setGraphicsEffect(glow)
         return node
 
-    def expand_scene(self):
+    def _expand_scene(self):
         item_rect = self.steps[self.current].sceneBoundingRect()
         current_rect = self.scene.sceneRect()
         if item_rect.right() > current_rect.right() / 2:
             current_rect.setWidth(current_rect.width() + self.node_step)
             self.scene.setSceneRect(current_rect)
             self.view.setSceneRect(current_rect)
-            self.animate_scroll_to(self.view.horizontalScrollBar().maximum() -
-                                   (current_rect.right() - item_rect.right() - self.scene_width // 2))
+            self._animate_scroll_to(self.view.horizontalScrollBar().maximum() -
+                                    (current_rect.right() - item_rect.right() - self.scene_width // 2))
 
-    def animate_scroll_to(self, value):
+    def _animate_scroll_to(self, value):
         scrollbar = self.view.horizontalScrollBar()
         self.scroll_animation = QPropertyAnimation(scrollbar, b"value")
         self.scroll_animation.setDuration(300)
@@ -86,7 +86,7 @@ class Pipeline(QWidget):
         self.scroll_animation.setEndValue(value)
         self.scroll_animation.start()
 
-    def set_node_active(self, node):
+    def _set_node_active(self, node):
         color = QColor(160, 255, 245, 60)
         node.setBrush(QBrush(color))
         node.setPen(QPen(QColor(255, 255, 255, 140), 2))
@@ -115,7 +115,7 @@ class Pipeline(QWidget):
         except IndexError:
             pass
 
-    def set_node_complete(self, node):
+    def _set_node_complete(self, node):
         color = QColor(190, 255, 180, 40)
         node.setBrush(QBrush(color))
         node.setPen(QPen(QColor(255, 255, 255, 90), 1.5))
@@ -144,7 +144,7 @@ class Pipeline(QWidget):
             return
 
         if self.current >= 0:
-            self.set_node_complete(self.steps[self.current])
+            self._set_node_complete(self.steps[self.current])
 
         self.current += 1
         if self.current >= len(self.steps):
@@ -158,17 +158,17 @@ class Pipeline(QWidget):
             self.flow = FlowLine(self.scene, p1, p2, on_finished=self.activate)
             self.flow.animate()
 
-        self.expand_scene()
+        self._expand_scene()
 
-    def activate(self):
-        self.set_node_active(self.steps[self.current])
+    def _activate(self):
+        self._set_node_active(self.steps[self.current])
         self.activated_first = True
         try:
-            self.fade_in_node(self.steps[self.current + 1])
+            self._fade_in_node(self.steps[self.current + 1])
         except IndexError:
             pass
 
-    def fade_in_node(self, node):
+    def _fade_in_node(self, node):
         if self.current_action == len(self.actions) - 1:
             return
         steps = 20

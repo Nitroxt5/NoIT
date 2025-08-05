@@ -20,7 +20,7 @@ class EDA:
 
         self.ignored_unimportant_columns = []
 
-    def on_click(self, action, answer: str):
+    def _on_click(self, action, answer: str):
         info = StaticInfo(self.pipeline.parent().parent(), self.dialog.text, answer, self.dialog.max_size,
                           self.dialog.pos())
         proxy = QGraphicsProxyWidget()
@@ -42,9 +42,9 @@ class EDA:
         proxy.setFlags(QGraphicsItem.ItemIgnoresParentOpacity | QGraphicsItem.ItemIgnoresTransformations)
         self.pipeline.scene.addItem(proxy)
 
-    def create_info_window(self, info=''):
+    def _create_info_window(self, info=''):
         next_btn = QPushButton('Next')
-        next_btn.clicked.connect(lambda: self.on_click(lambda: None, next_btn.text()))
+        next_btn.clicked.connect(lambda: self._on_click(lambda: None, next_btn.text()))
         self.create_dialog_window([next_btn], info)
 
     def handle_unimportant(self):
@@ -60,15 +60,14 @@ class EDA:
             self.unimportant_exists = True
             yes_btn = QPushButton('Yes')
             no_btn = QPushButton('No')
-            yes_btn.clicked.connect(lambda: self.on_click(lambda: self.data.drop(col, axis=1, inplace=True),
-                                                          yes_btn.text()))
-            no_btn.clicked.connect(lambda: self.on_click(lambda: self.ignored_unimportant_columns.append(col),
-                                                         no_btn.text()))
-            self.create_dialog_window([yes_btn, no_btn],
-                                      f'Column `{col}` seems to be unimportant. Remove?')
+            yes_btn.clicked.connect(lambda: self._on_click(lambda: self.data.drop(col, axis=1, inplace=True),
+                                                           yes_btn.text()))
+            no_btn.clicked.connect(lambda: self._on_click(lambda: self.ignored_unimportant_columns.append(col),
+                                                          no_btn.text()))
+            self.create_dialog_window([yes_btn, no_btn], f'Column `{col}` seems to be unimportant. Remove?')
             return False
         if not self.unimportant_exists and self.first:
-            self.create_info_window('No unimportant columns found.')
+            self._create_info_window('No unimportant columns found.')
             self.first = False
             return False
         return True
@@ -79,14 +78,13 @@ class EDA:
         self.first = False
         duplicates_count = self.data.duplicated().value_counts().get(True, 0)
         if duplicates_count == 0:
-            self.create_info_window('No duplicates found.')
+            self._create_info_window('No duplicates found.')
             return False
         yes_btn = QPushButton('Yes')
         no_btn = QPushButton('No')
-        yes_btn.clicked.connect(lambda: self.on_click(lambda: self.data.drop_duplicates(inplace=True), yes_btn.text()))
-        no_btn.clicked.connect(lambda: self.on_click(lambda: None, no_btn.text()))
-        self.create_dialog_window([yes_btn, no_btn],
-                                  f'Detected {duplicates_count} duplicates. Remove?')
+        yes_btn.clicked.connect(lambda: self._on_click(lambda: self.data.drop_duplicates(inplace=True), yes_btn.text()))
+        no_btn.clicked.connect(lambda: self._on_click(lambda: None, no_btn.text()))
+        self.create_dialog_window([yes_btn, no_btn], f'Detected {duplicates_count} duplicates. Remove?')
         return False
 
     def handle_nulls(self):
@@ -96,20 +94,19 @@ class EDA:
         for col in cols_with_empty_values:
             self.first = False
             dc_btn = QPushButton('Delete column')
-            dc_btn.clicked.connect(lambda: self.on_click(lambda: self.data.drop(col, axis=1, inplace=True),
-                                                         dc_btn.text()))
+            dc_btn.clicked.connect(lambda: self._on_click(lambda: self.data.drop(col, axis=1, inplace=True),
+                                                          dc_btn.text()))
             dr_btn = QPushButton('Delete row')
-            dr_btn.clicked.connect(lambda: self.on_click(lambda: self.data.dropna(subset=[col], inplace=True),
-                                                         dr_btn.text()))
+            dr_btn.clicked.connect(lambda: self._on_click(lambda: self.data.dropna(subset=[col], inplace=True),
+                                                          dr_btn.text()))
             fr_btn = QPushButton('Fill with random')
-            fr_btn.clicked.connect(lambda: self.on_click(lambda: self.fill_with_random(col),
-                                                         fr_btn.text()))
+            fr_btn.clicked.connect(lambda: self._on_click(lambda: self._fill_with_random(col), fr_btn.text()))
             if pd.api.types.is_numeric_dtype(self.data[col].dtype):
                 fz_btn = QPushButton('Fill with zeros')
-                fz_btn.clicked.connect(lambda: self.on_click(lambda: self.data.fillna({col: 0}, inplace=True),
-                                                             fz_btn.text()))
+                fz_btn.clicked.connect(lambda: self._on_click(lambda: self.data.fillna({col: 0}, inplace=True),
+                                                              fz_btn.text()))
                 fa_btn = QPushButton('Fill with average')
-                fa_btn.clicked.connect(lambda: self.on_click(lambda: self.fill_with_avg(col), fa_btn.text()))
+                fa_btn.clicked.connect(lambda: self._on_click(lambda: self._fill_with_avg(col), fa_btn.text()))
                 buttons = [dc_btn, dr_btn, fz_btn, fa_btn, fr_btn]
             else:
                 buttons = [dc_btn, dr_btn, fr_btn]
@@ -117,13 +114,13 @@ class EDA:
                                                f'How to handle them?', QSize(400, 400), 'vertical')
             return False
         if cols_with_empty_values.empty and self.first:
-            self.create_info_window('No empty values found.')
+            self._create_info_window('No empty values found.')
             self.first = False
             return False
         self.data = self.data.convert_dtypes()
         return True
 
-    def fill_with_random(self, col):
+    def _fill_with_random(self, col):
         if pd.api.types.is_numeric_dtype(self.data[col].dtype):
             low = self.data[col].min()
             high = self.data[col].max()
@@ -135,7 +132,7 @@ class EDA:
             unique_values = self.data[col].drop_duplicates().dropna()
             self.data[col] = self.data[col].map(lambda x: np.random.choice(unique_values) if pd.isna(x) else x)
 
-    def fill_with_avg(self, col):
+    def _fill_with_avg(self, col):
         avg = self.data[col].mean()
         if pd.api.types.is_integer_dtype(self.data[col].dtype):
             avg = round(avg)
@@ -146,12 +143,12 @@ class EDA:
             return True
         self.first = False
         self.dropdown.addItems(self.data.columns)
-        self.dropdown.currentIndexChanged.connect(lambda: self.on_click(self.on_target_selection,
-                                                                        self.dropdown.currentText()))
+        self.dropdown.currentIndexChanged.connect(lambda: self._on_click(self._on_target_selection,
+                                                                         self.dropdown.currentText()))
         self.create_dialog_window([self.dropdown], 'Choose a target variable:', mode='dropdown')
         return False
 
-    def on_target_selection(self):
+    def _on_target_selection(self):
         choice = self.dropdown.currentText()
         self.target = self.data[choice]
         self.data.drop(choice, axis=1, inplace=True)
@@ -161,5 +158,5 @@ class EDA:
             return True
         self.first = False
         self.data = encode_data(self.data)
-        self.create_info_window('Data is encoded.')
+        self._create_info_window('Data is encoded.')
         return False

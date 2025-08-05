@@ -55,7 +55,7 @@ table_style = """
     }
     """
 
-button_style = """
+dialog_button_style = """
     QPushButton {
         color: white;
         background-color: rgba(20, 40, 80, 100);
@@ -126,3 +126,15 @@ file_loader_style = """
         background-color: rgba(47, 58, 57, 200);
     }
     """
+
+delete_button_style = """    
+    QPushButton {
+        color: red;
+        font-weight: bold;
+        border: none;
+        border-radius: 0px;
+        background-color: rgba(20, 40, 80, 100);
+    }
+    QPushButton:hover {
+        background-color: rgba(100, 140, 200, 180);
+    }"""

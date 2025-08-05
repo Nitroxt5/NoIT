@@ -20,13 +20,13 @@ class FlowLine(QObject):
         self.line.setPen(pen)
 
         self.timer = QTimer()
-        self.timer.timeout.connect(self.animate_step)
+        self.timer.timeout.connect(self._animate_step)
 
     def animate(self):
         self.progress = 0.0
         self.timer.start(30)
 
-    def animate_step(self):
+    def _animate_step(self):
         self.progress += self.speed
         if self.progress >= 1.0:
             self.progress = 1.0

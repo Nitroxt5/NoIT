@@ -1,6 +1,6 @@
 from PyQt5.QtCore import QPoint, QThread, pyqtSignal
 from PyQt5.QtWidgets import QGraphicsProxyWidget, QGraphicsItem, QPushButton
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import train_test_split
 from time import perf_counter
 from math import ceil
 
@@ -22,12 +22,12 @@ class Tester(QThread):
         self.true_pred = {}
         self.times = {}
 
-    def on_click(self, action, text, answer):
-        self.create_static_info(text, answer)
+    def _on_click(self, action, text, answer):
+        self._create_static_info(text, answer)
         action()
         self.pipeline.next_step()
 
-    def create_static_info(self, text, answer):
+    def _create_static_info(self, text, answer):
         pos = self.pipeline.view.mapToScene(self.pipeline.view.viewport().rect().topLeft())
         pos = QPoint(pos.x() + self.pipeline.steps[self.pipeline.current].x() -
                      self.pipeline.view.horizontalScrollBar().value(),
@@ -38,7 +38,7 @@ class Tester(QThread):
         proxy.setFlags(QGraphicsItem.ItemIgnoresParentOpacity | QGraphicsItem.ItemIgnoresTransformations)
         self.pipeline.scene.addItem(proxy)
 
-    def create_progress_bar(self, buttons, start_text, end_text):
+    def _create_progress_bar(self, buttons, start_text, end_text):
         pos = self.pipeline.view.mapToScene(self.pipeline.view.viewport().rect().topLeft())
         pos = QPoint(pos.x() + self.pipeline.steps[self.pipeline.current].x() -
                      self.pipeline.view.horizontalScrollBar().value(),
@@ -59,9 +59,9 @@ class Tester(QThread):
         pos = self.pipeline.view.mapToScene(self.pipeline.view.viewport().rect().topLeft())
         pos = QPoint(pos.x() + 150, pos.y() + 1300)
         next_btn = QPushButton('Next')
-        next_btn.clicked.connect(lambda: self.on_click(lambda: None,
-                                                       f'{self.alg_chooser.algs_count} algorithms were chosen',
-                                                       next_btn.text()))
+        next_btn.clicked.connect(lambda: self._on_click(lambda: None,
+                                                        f'{self.alg_chooser.algs_count} algorithms were chosen',
+                                                        next_btn.text()))
         self.alg_chooser = AlgChooser([next_btn], self.pipeline.parent().parent(), pos=pos)
         self.alg_chooser.show_animated(self.pipeline.view.horizontalScrollBar())
         proxy = QGraphicsProxyWidget()
@@ -70,7 +70,7 @@ class Tester(QThread):
         self.pipeline.scene.addItem(proxy)
         return False
 
-    def test_alg(self, row, x_train, x_test, y_train, y_test):
+    def _test_alg(self, row, x_train, x_test, y_train, y_test):
         model_name = self.alg_chooser.table.item(row, 0).text()
         model = algs[model_name[:-1]]()
         fit_time_start = perf_counter()
@@ -86,17 +86,17 @@ class Tester(QThread):
             return True
         self.first = False
         next_btn = QPushButton('Next')
-        next_btn.clicked.connect(lambda: self.on_click(lambda: None,
-                                                       f'{self.alg_chooser.algs_count} algorithms were tested',
-                                                       next_btn.text()))
-        self.create_progress_bar([next_btn], 'Testing is in progress...', 'Testing is done.')
+        next_btn.clicked.connect(lambda: self._on_click(lambda: None,
+                                                        f'{self.alg_chooser.algs_count} algorithms were tested',
+                                                        next_btn.text()))
+        self._create_progress_bar([next_btn], 'Testing is in progress...', 'Testing is done.')
         return False
 
     def run(self):
         x_train, x_test, y_train, y_test = train_test_split(self.pipeline.eda.data, self.pipeline.eda.target,
                                                             test_size=0.2, random_state=19)
         for row in range(self.alg_chooser.algs_count):
-            self.test_alg(row, x_train, x_test, y_train, y_test)
+            self._test_alg(row, x_train, x_test, y_train, y_test)
             self.progress_changed.emit(ceil((row + 1) / self.alg_chooser.algs_count * 100))
         if self.alg_chooser.algs_count == 0:
             self.progress_changed.emit(self.progress_bar.progress.maximum())

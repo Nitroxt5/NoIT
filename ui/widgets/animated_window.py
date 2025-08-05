@@ -61,10 +61,10 @@ class AnimatedWindow(QWidget):
 
         self.sequence.addAnimation(anim_up)
         self.sequence.addAnimation(anim_right)
-        self.sequence.finished.connect(lambda: self.create_contents(scroll_bar))
+        self.sequence.finished.connect(lambda: self._create_contents(scroll_bar))
         self.sequence.start()
 
-    def start_typing_effect(self):
+    def _start_typing_effect(self):
         self.label.setText('')
 
         def type_next():
@@ -77,8 +77,8 @@ class AnimatedWindow(QWidget):
         self.typing_timer.timeout.connect(type_next)
         self.typing_timer.start(30)
 
-    def create_contents(self, scroll_bar):
+    def _create_contents(self, scroll_bar):
         self.setFixedWidth(self.max_size.width())
         self.layout.addWidget(self.label)
-        self.start_typing_effect()
+        self._start_typing_effect()
         scroll_bar.setEnabled(True)

@@ -1,7 +1,7 @@
 from PyQt5.QtCore import QPoint, QSize
 from PyQt5.QtWidgets import QHBoxLayout, QProgressBar
 
-from ui.styles import button_style, progress_bar_style
+from ui.styles import dialog_button_style, progress_bar_style
 from ui.widgets.animated_window import AnimatedWindow
 
 
@@ -15,9 +15,9 @@ class ProgressBar(AnimatedWindow):
         self.progress.setRange(0, 100)
         self.progress.setVisible(False)
         self.progress.setStyleSheet(progress_bar_style)
-        self.progress.valueChanged.connect(self.check_completion)
+        self.progress.valueChanged.connect(self._check_completion)
 
-    def check_completion(self, value):
+    def _check_completion(self, value):
         if value != self.progress.maximum():
             return
         self.progress.setVisible(False)
@@ -26,16 +26,16 @@ class ProgressBar(AnimatedWindow):
         self.label.setText(self.end_text)
         h_layout = QHBoxLayout()
         for btn in self.buttons:
-            btn.setStyleSheet(button_style)
+            btn.setStyleSheet(dialog_button_style)
             h_layout.addWidget(btn)
         self.layout.addLayout(h_layout)
 
-    def create_contents(self, scroll_bar):
+    def _create_contents(self, scroll_bar):
         self.setFixedWidth(self.max_size.width())
         self.layout.addWidget(self.label)
         self.layout.addWidget(self.progress)
         self.progress.setVisible(True)
-        self.start_typing_effect()
+        self._start_typing_effect()
         scroll_bar.setEnabled(True)
         if self.on_success_callback:
             self.on_success_callback()

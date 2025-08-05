@@ -28,16 +28,16 @@ class CsvDropZone(QWidget):
         self.table.setCornerButtonEnabled(False)
         self.table.verticalHeader().setDefaultSectionSize(28)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
-        self.table.horizontalHeader().sectionClicked.connect(self.draw_distribution)
+        self.table.horizontalHeader().sectionClicked.connect(self._draw_distribution)
         self.path = ''
         self.continue_btn = QPushButton('Continue', self)
-        self.continue_btn.clicked.connect(self.on_continue)
+        self.continue_btn.clicked.connect(self._on_continue)
         self.continue_btn.setEnabled(False)
         self.continue_btn.setVisible(False)
         self.layout = QVBoxLayout(self)
         self.layout.addWidget(self.label)
 
-    def adapt_table_width(self):
+    def _adapt_table_width(self):
         for col in range(self.table.columnCount()):
             self.table.setColumnWidth(col, 150)
         font_metrics = QFontMetrics(self.table.font())
@@ -52,7 +52,7 @@ class CsvDropZone(QWidget):
                     self.table.horizontalHeader().setSectionResizeMode(col, QHeaderView.ResizeToContents)
                     break
 
-    def draw_distribution(self, ind):
+    def _draw_distribution(self, ind):
         column = self.table.horizontalHeaderItem(ind).text()
         plt.figure(figsize=(12, 12))
         plt.xticks(fontsize=16)
@@ -63,13 +63,13 @@ class CsvDropZone(QWidget):
         plt.ylabel('Count', fontsize=20)
         plt.show()
 
-    def on_continue(self):
+    def _on_continue(self):
         if self.on_success_callback:
             self.on_success_callback(self.df, self.path.split("/")[-1].rpartition('.')[0])
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
-            self.select_file()
+            self._select_file()
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
@@ -85,21 +85,21 @@ class CsvDropZone(QWidget):
     def dropEvent(self, event):
         file_path = event.mimeData().urls()[0].toLocalFile()
         if file_path.lower().endswith('.csv'):
-            self.load_csv(file_path)
+            self._load_csv(file_path)
         else:
             self.label.setText('Wrong file format')
 
     def dragLeaveEvent(self, event):
         self.label.setText(f'File: {self.path.split("/")[-1]}')
 
-    def select_file(self):
+    def _select_file(self):
         file_path, _ = QFileDialog.getOpenFileName(
             self, 'Choose CSV file', filter='CSV Files (*.csv)'
         )
         if file_path:
-            self.load_csv(file_path)
+            self._load_csv(file_path)
 
-    def load_csv(self, path):
+    def _load_csv(self, path):
         self.path = path
         try:
             self.df = pd.read_csv(self.path, encoding='utf-8')
@@ -136,7 +136,7 @@ class CsvDropZone(QWidget):
             self.continue_btn.setVisible(True)
             self.layout.addWidget(self.table)
             self.layout.addWidget(self.continue_btn)
-            self.adapt_table_width()
+            self._adapt_table_width()
         except Exception as e:
             self.label.setText(f'Error: {e}')
             self.table.clear()
