@@ -5,7 +5,8 @@ from eda.utils import count_max_decimal_places
 
 def encode_data(data: pd.DataFrame):
     data = data.convert_dtypes()
-    for col in data.columns:
+    columns = data.columns
+    for col in columns:
         if pd.api.types.is_numeric_dtype(data[col].dtype):
             data = _binary_encoding(data, col)
             continue
@@ -38,7 +39,7 @@ def _label_encoding(data: pd.DataFrame, col: str):
         if pd.api.types.is_float_dtype(data[col].dtype):
             decimal_places_count = count_max_decimal_places(data[col])
             data[col] *= 10 ** decimal_places_count
-            data[col] = data[col].astype(int)
+            data[col] = data[col].astype('int64')
         low = data[col].min()
         data[col] = data[col].map({value: value - low for value in data[col].unique()})
     else:
