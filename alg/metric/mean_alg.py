@@ -39,7 +39,7 @@ class MeanAlg:
         a_sum = self.a.sum(1)
         y_pred = []
         for x in self.x_test:
-            s_vals = np.full((len(self.a), len(self.x)), 1000.)
+            s_vals = np.zeros((len(self.a), len(self.x)))
             for i in range(len(self.x)):
                 s_vals[self.y[i]][i] = max(0, 1 - self._s(self.a[self.y[i]], x, self.x[i], a_sum[self.y[i]]) / self.d)
             f = s_vals.max(1)
