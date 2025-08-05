@@ -3,9 +3,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
-from alg.metric.pos_alg import PosAlg
-from alg.metric.neg_alg import NegAlg
-from alg.metric.mean_alg import MeanAlg
+from alg.metric.precedence_alg import PrecedenceAlg
 
 algs = {
     'SVM': SVC,
@@ -13,7 +11,7 @@ algs = {
     'DecisionTree': DecisionTreeClassifier,
     'RandomForest': RandomForestClassifier,
     'LogReg': LogisticRegression,
-    'PosAlg': PosAlg,
-    'NegAlg': NegAlg,
-    'MeanAlg': MeanAlg
+    'PosAlg': lambda: PrecedenceAlg('pos'),
+    'NegAlg': lambda: PrecedenceAlg('neg'),
+    'MeanAlg': lambda: PrecedenceAlg('mean')
 }
