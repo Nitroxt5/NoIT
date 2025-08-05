@@ -53,6 +53,16 @@ table_style = """
         border: none;
         padding: 4px;
     }
+    QTableWidget::item:selected {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: none;
+    }
+    QTableWidget::item:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: none;
+    }
     """
 
 dialog_button_style = """

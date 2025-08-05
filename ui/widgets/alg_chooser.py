@@ -26,7 +26,7 @@ class AlgChooser(AnimatedWindow):
         self.table = DraggableTable()
         self.table.horizontalHeader().setVisible(False)
         self.table.setStyleSheet(table_style + scroll_bar_style)
-        self.table.setColumnCount(2)
+        self.table.setColumnCount(3)
         self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
 
     def _add_alg(self):
@@ -36,8 +36,7 @@ class AlgChooser(AnimatedWindow):
         self.table.setItem(self.algs_count - 1, 0, item)
 
     def _create_contents(self, scroll_bar):
-        self.setFixedWidth(self.max_size.width())
-        self.layout.addWidget(self.label)
+        super()._create_contents(scroll_bar)
         self.layout.addWidget(self.dropdown)
         self.layout.addWidget(self.table)
         btn_layout = QHBoxLayout()
@@ -45,8 +44,6 @@ class AlgChooser(AnimatedWindow):
             btn_layout.addWidget(btn)
             btn.setStyleSheet(dialog_button_style)
         self.layout.addLayout(btn_layout)
-        self._start_typing_effect()
-        scroll_bar.setEnabled(True)
 
     @property
     def algs_count(self):

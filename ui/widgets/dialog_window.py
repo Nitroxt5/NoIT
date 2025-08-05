@@ -24,9 +24,6 @@ class AnimatedDialog(AnimatedWindow):
         self.button_box.setEnabled(False)
 
     def _create_contents(self, scroll_bar):
-        self.setFixedWidth(self.max_size.width())
-        self.layout.addWidget(self.label)
+        super()._create_contents(scroll_bar)
         self.layout.addLayout(self.button_box)
-        self._start_typing_effect()
         self.button_box.setEnabled(True)
-        scroll_bar.setEnabled(True)

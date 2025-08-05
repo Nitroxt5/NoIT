@@ -31,11 +31,8 @@ class ProgressBar(AnimatedWindow):
         self.layout.addLayout(h_layout)
 
     def _create_contents(self, scroll_bar):
-        self.setFixedWidth(self.max_size.width())
-        self.layout.addWidget(self.label)
+        super()._create_contents(scroll_bar)
         self.layout.addWidget(self.progress)
         self.progress.setVisible(True)
-        self._start_typing_effect()
-        scroll_bar.setEnabled(True)
         if self.on_success_callback:
             self.on_success_callback()
