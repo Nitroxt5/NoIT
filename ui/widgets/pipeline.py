@@ -139,7 +139,7 @@ class Pipeline(QWidget):
             target = self.steps[0].sceneBoundingRect().center()
             target.setX(target.x() - self.node_radius)
             self.current += 1
-            self.flow = FlowLine(self.scene, entry, target, on_finished=self.activate)
+            self.flow = FlowLine(self.scene, entry, target, on_finished=self._activate)
             self.flow.animate()
             return
 
@@ -155,7 +155,7 @@ class Pipeline(QWidget):
             p1.setX(p1.x() + self.node_radius)
             p2 = self.steps[self.current].sceneBoundingRect().center()
             p2.setX(p2.x() - self.node_radius)
-            self.flow = FlowLine(self.scene, p1, p2, on_finished=self.activate)
+            self.flow = FlowLine(self.scene, p1, p2, on_finished=self._activate)
             self.flow.animate()
 
         self._expand_scene()
