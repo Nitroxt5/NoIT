@@ -66,7 +66,6 @@ class Tester(QThread):
         self.alg_chooser.show_animated(self.pipeline.view.horizontalScrollBar())
         proxy = QGraphicsProxyWidget()
         proxy.setWidget(self.alg_chooser)
-        proxy.setFlags(QGraphicsItem.ItemIgnoresParentOpacity | QGraphicsItem.ItemIgnoresTransformations)
         self.pipeline.scene.addItem(proxy)
         return False
 
