@@ -141,10 +141,20 @@ delete_button_style = """
     QPushButton {
         color: red;
         font-weight: bold;
+        font-size: 25px;
         border: none;
         border-radius: 0px;
         background-color: rgba(20, 40, 80, 100);
     }
     QPushButton:hover {
         background-color: rgba(100, 140, 200, 180);
+    }"""
+
+line_edit_style = """
+    QLineEdit {
+        color: white;
+        background-color: rgba(20, 40, 80, 100);
+        border: 1px solid rgba(255, 255, 255, 60);
+        border-radius: 6px;
+        padding: 4px 12px;
     }"""

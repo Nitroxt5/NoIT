@@ -1,10 +1,12 @@
 from PyQt5.QtCore import Qt, QPoint, QSize
-from PyQt5.QtWidgets import QLabel, QHBoxLayout, QComboBox, QTableWidgetItem, QHeaderView
+from PyQt5.QtGui import QIntValidator
+from PyQt5.QtWidgets import QLabel, QHBoxLayout, QComboBox, QTableWidgetItem, QHeaderView, QLineEdit, QWidget, \
+    QVBoxLayout
 
-from ui.styles import scroll_bar_style, table_style, combo_box_style, dialog_button_style
+from ui.styles import scroll_bar_style, table_style, combo_box_style, dialog_button_style, line_edit_style
 from ui.widgets.animated_window import AnimatedWindow
 from ui.ui_objects.draggable_table import DraggableTable
-from alg.algs_list import algs
+from alg.algs_list import algs, hyperparams
 
 
 class AlgChooser(AnimatedWindow):
@@ -27,13 +29,42 @@ class AlgChooser(AnimatedWindow):
         self.table.horizontalHeader().setVisible(False)
         self.table.setStyleSheet(table_style + scroll_bar_style)
         self.table.setColumnCount(3)
-        self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+        self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeToContents)
+        self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
 
     def _add_alg(self):
-        item = QTableWidgetItem(self.dropdown.currentText() + str(self.possible_algs[self.dropdown.currentText()]))
-        self.possible_algs[self.dropdown.currentText()] += 1
+        alg_name = self.dropdown.currentText()
         self.table.insert_row(self.algs_count)
+
+        item = QTableWidgetItem(alg_name + str(self.possible_algs[alg_name]))
+        self.possible_algs[alg_name] += 1
         self.table.setItem(self.algs_count - 1, 0, item)
+
+        layout = QHBoxLayout()
+        for param, values in hyperparams[alg_name].items():
+            v_layout = QVBoxLayout()
+            label = QLabel(param)
+            label.setStyleSheet('color: white; font-size: 25px; border: none; text-align: center; '
+                                'background: transparent')
+            v_layout.addWidget(label, stretch=1)
+            if param == 'criterion' or param == 'kernel':
+                dropdown = QComboBox()
+                dropdown.setMaxVisibleItems(8)
+                dropdown.setStyleSheet(combo_box_style + scroll_bar_style)
+                dropdown.addItems(['auto'] + values)
+                v_layout.addWidget(dropdown, stretch=1)
+            else:
+                int_input = QLineEdit()
+                int_input.setPlaceholderText('auto')
+                int_input.setValidator(QIntValidator(min(values['range']), max(values['range'])))
+                int_input.setStyleSheet(line_edit_style)
+                v_layout.addWidget(int_input)
+            layout.addLayout(v_layout, stretch=1)
+        proxy = QWidget()
+        proxy.setStyleSheet('border: none; border-radius: 0px')
+        proxy.setLayout(layout)
+        self.table.setCellWidget(self.algs_count - 1, 1, proxy)
+        self.table.resizeRowsToContents()
 
     def _create_contents(self, scroll_bar):
         super()._create_contents(scroll_bar)

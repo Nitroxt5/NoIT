@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QTableWidget, QPushButton
+from PyQt5.QtWidgets import QTableWidget, QPushButton, QWidget
 from PyQt5.QtCore import Qt, QMimeData, QByteArray
 from PyQt5.QtGui import QDrag
 
@@ -23,12 +23,15 @@ class DraggableTable(QTableWidget):
         self.removeRow(row)
         self._update_buttons()
 
+    def _update_button(self, r):
+        btn = QPushButton('✖')
+        btn.setStyleSheet(delete_button_style)
+        btn.clicked.connect(lambda _, row=r: self.remove_row(row))
+        self.setCellWidget(r, self.columnCount() - 1, btn)
+
     def _update_buttons(self):
         for r in range(self.rowCount()):
-            btn = QPushButton('✖')
-            btn.setStyleSheet(delete_button_style)
-            btn.clicked.connect(lambda _, row=r: self.remove_row(row))
-            self.setCellWidget(r, self.columnCount() - 1, btn)
+            self._update_button(r)
 
     def startDrag(self, supported_actions):
         drag = QDrag(self)
@@ -44,10 +47,24 @@ class DraggableTable(QTableWidget):
         if target_row == -1 or source_row == target_row:
             return
 
-        for col in range(self.columnCount()):
-            source_item = self.takeItem(source_row, col)
-            target_item = self.takeItem(target_row, col)
-            self.setItem(source_row, col, target_item)
-            self.setItem(target_row, col, source_item)
+        for col in range(self.columnCount() - 1):
+            if col == 0:
+                source_item = self.takeItem(source_row, col)
+                target_item = self.takeItem(target_row, col)
+                self.setItem(source_row, col, target_item)
+                self.setItem(target_row, col, source_item)
+                continue
+            if col == 1:
+                source_widget = self.cellWidget(source_row, col)
+                target_widget = self.cellWidget(target_row, col)
+                self.removeCellWidget(source_row, col)
+                self.removeCellWidget(target_row, col)
+                new_source_widget, new_target_widget = QWidget(), QWidget()
+                new_source_widget.setLayout(target_widget.layout())
+                new_target_widget.setLayout(source_widget.layout())
+                self.setCellWidget(source_row, col, new_source_widget)
+                self.setCellWidget(target_row, col, new_target_widget)
 
+        self._update_button(source_row)
+        self._update_button(target_row)
         event.accept()
