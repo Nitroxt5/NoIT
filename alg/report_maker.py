@@ -13,7 +13,8 @@ class Reporter:
         self.pipeline = pipeline
         self.first = True
         self.report = '<!DOCTYPE html><html><body>'
-        self.column_names = ('Algorithm', 'Accuracy', 'Precision', 'Recall', 'F1-Score', 'Fit time', 'Predict time')
+        self.column_names = ('Algorithm', 'Hyperparameters', 'Accuracy', 'Precision', 'Recall', 'F1-Score', 'Fit time',
+                             'Predict time')
 
     def create_report(self):
         if not self.first:
@@ -56,15 +57,17 @@ class Reporter:
         for col in self.column_names:
             text += f'<th>{col}</th>'
         text += '</tr>'
-        for alg, true_pred in self.pipeline.tester.true_pred.items():
+        for alg in self.pipeline.tester.true:
             text += f'<tr><td>{alg}</td>'
-            accuracy = accuracy_score(true_pred[0], true_pred[1])
-            precision, recall, f1, _ = precision_recall_fscore_support(true_pred[0], true_pred[1],
+            accuracy = accuracy_score(self.pipeline.tester.true[alg], self.pipeline.tester.pred[alg])
+            precision, recall, f1, _ = precision_recall_fscore_support(self.pipeline.tester.true[alg],
+                                                                       self.pipeline.tester.pred[alg],
                                                                        average='macro', zero_division=0)
-            text += (f'<td>{accuracy * 100:.2f}%</td><td>{precision * 100:.2f}%</td>'
+            text += (f'<td>{self.pipeline.tester.params[alg]}</td>'
+                     f'<td>{accuracy * 100:.2f}%</td><td>{precision * 100:.2f}%</td>'
                      f'<td>{recall * 100:.2f}%</td><td>{f1 * 100:.2f}%</td>'
-                     f'<td>{self.pipeline.tester.times[alg][0]:.5f} s</td>'
-                     f'<td>{self.pipeline.tester.times[alg][1]:.5f} s</td></tr>')
+                     f'<td>{self.pipeline.tester.fit_time[alg]:.5f} s</td>'
+                     f'<td>{self.pipeline.tester.pred_time[alg]:.5f} s</td></tr>')
         return text
 
     @staticmethod

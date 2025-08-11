@@ -19,8 +19,11 @@ class Tester(QThread):
         self.alg_chooser = AlgChooser([])
         self.progress_bar = ProgressBar([])
         self.first = True
-        self.true_pred = {}
-        self.times = {}
+        self.true = {}
+        self.pred = {}
+        self.params = {}
+        self.fit_time = {}
+        self.pred_time = {}
 
     def _on_click(self, action, text, answer):
         self._create_static_info(text, answer)
@@ -72,16 +75,18 @@ class Tester(QThread):
     def _test_alg(self, row, x_train, x_test, y_train, y_test):
         model_name = self.alg_chooser.table.item(row, 0).text()
         param_grid = self._get_param_grid(row, model_name)
-        print(model_name, param_grid)
         model = algs[model_name[:-1]]()
         grid_search = GridSearchCV(estimator=model, param_grid=param_grid)
         fit_time_start = perf_counter()
         grid_search.fit(x_train, y_train)
         fit_time = perf_counter() - fit_time_start
         predict_time_start = perf_counter()
-        self.true_pred[model_name] = (y_test, grid_search.best_estimator_.predict(x_test))
+        self.pred[model_name] = grid_search.best_estimator_.predict(x_test)
         predict_time = perf_counter() - predict_time_start
-        self.times[model_name] = (fit_time, predict_time)
+        self.true[model_name] = y_test
+        self.params[model_name] = grid_search.best_params_
+        self.fit_time[model_name] = fit_time
+        self.pred_time[model_name] = predict_time
 
     def _get_param_grid(self, row, model_name):
         param_grid = {}
