@@ -3,7 +3,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from PyQt5.QtWidgets import (
     QLabel, QPushButton, QWidget, QFileDialog,
-    QVBoxLayout, QTableWidget, QTableWidgetItem, QHeaderView
+    QVBoxLayout, QTableWidget, QTableWidgetItem, QHeaderView, QApplication
 )
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QFontMetrics
@@ -29,13 +29,19 @@ class CsvDropZone(QWidget):
         self.table.verticalHeader().setDefaultSectionSize(28)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
         self.table.horizontalHeader().sectionClicked.connect(self._draw_distribution)
+        self._enable_table(False)
         self.path = ''
-        self.continue_btn = QPushButton('Continue', self)
+        self.continue_btn = QPushButton('Continue')
         self.continue_btn.clicked.connect(self._on_continue)
-        self.continue_btn.setEnabled(False)
-        self.continue_btn.setVisible(False)
+        self._enable_buttons(False)
+        self.exit_btn = QPushButton('Exit')
+        self.exit_btn.clicked.connect(QApplication.exit)
+        self.exit_btn.setStyleSheet('background-color: rgb(150, 47, 47);')
         self.layout = QVBoxLayout(self)
         self.layout.addWidget(self.label)
+        self.layout.addWidget(self.table)
+        self.layout.addWidget(self.continue_btn)
+        self.layout.addWidget(self.exit_btn)
 
     def _adapt_table_width(self):
         for col in range(self.table.columnCount()):
@@ -99,6 +105,14 @@ class CsvDropZone(QWidget):
         if file_path:
             self._load_csv(file_path)
 
+    def _enable_buttons(self, value: bool):
+        self.continue_btn.setEnabled(value)
+        self.continue_btn.setVisible(value)
+
+    def _enable_table(self, value: bool):
+        self.table.setEnabled(value)
+        self.table.setVisible(value)
+
     def _load_csv(self, path):
         self.path = path
         try:
@@ -110,17 +124,14 @@ class CsvDropZone(QWidget):
                 self.table.clear()
                 self.table.setColumnCount(0)
                 self.table.setRowCount(0)
-                self.table.setEnabled(False)
-                self.table.setVisible(False)
-                self.continue_btn.setEnabled(False)
-                self.continue_btn.setVisible(False)
+                self._enable_table(False)
+                self._enable_buttons(False)
                 return
 
             headers = self.df.columns.tolist()
             preview = self.df.head(100).values.tolist()
 
-            self.table.setEnabled(True)
-            self.table.setVisible(True)
+            self._enable_table(True)
             self.table.clear()
             self.table.setColumnCount(len(headers))
             self.table.setRowCount(len(preview))
@@ -132,10 +143,7 @@ class CsvDropZone(QWidget):
                     self.table.setItem(i, j, item)
 
             self.label.setText(f'File: {self.path.split("/")[-1]}')
-            self.continue_btn.setEnabled(True)
-            self.continue_btn.setVisible(True)
-            self.layout.addWidget(self.table)
-            self.layout.addWidget(self.continue_btn)
+            self._enable_buttons(True)
             self._adapt_table_width()
         except Exception as e:
             self.label.setText(f'Error: {e}')
