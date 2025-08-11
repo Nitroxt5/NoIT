@@ -49,12 +49,14 @@ class AlgChooser(AnimatedWindow):
             v_layout.addWidget(label, stretch=1)
             if param == 'criterion' or param == 'kernel':
                 dropdown = QComboBox()
+                dropdown.setObjectName(param)
                 dropdown.setMaxVisibleItems(8)
                 dropdown.setStyleSheet(combo_box_style + scroll_bar_style)
                 dropdown.addItems(['auto'] + values)
                 v_layout.addWidget(dropdown, stretch=1)
             else:
                 int_input = QLineEdit()
+                int_input.setObjectName(param)
                 int_input.setPlaceholderText('auto')
                 int_input.setValidator(QIntValidator(min(values['range']), max(values['range'])))
                 int_input.setStyleSheet(line_edit_style)

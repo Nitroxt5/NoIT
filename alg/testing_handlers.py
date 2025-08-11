@@ -1,13 +1,13 @@
 from PyQt5.QtCore import QPoint, QThread, pyqtSignal
-from PyQt5.QtWidgets import QGraphicsProxyWidget, QGraphicsItem, QPushButton
-from sklearn.model_selection import train_test_split
+from PyQt5.QtWidgets import QGraphicsProxyWidget, QGraphicsItem, QPushButton, QComboBox, QLineEdit
+from sklearn.model_selection import train_test_split, GridSearchCV
 from time import perf_counter
 from math import ceil
 
 from ui.widgets.alg_chooser import AlgChooser
 from ui.widgets.static_info import StaticInfo
 from ui.widgets.progress_bar import ProgressBar
-from alg.algs_list import algs
+from alg.algs_list import algs, hyperparams
 
 
 class Tester(QThread):
@@ -71,14 +71,35 @@ class Tester(QThread):
 
     def _test_alg(self, row, x_train, x_test, y_train, y_test):
         model_name = self.alg_chooser.table.item(row, 0).text()
+        param_grid = self._get_param_grid(row, model_name)
+        print(model_name, param_grid)
         model = algs[model_name[:-1]]()
+        grid_search = GridSearchCV(estimator=model, param_grid=param_grid)
         fit_time_start = perf_counter()
-        model.fit(x_train, y_train)
+        grid_search.fit(x_train, y_train)
         fit_time = perf_counter() - fit_time_start
         predict_time_start = perf_counter()
-        self.true_pred[model_name] = (y_test, model.predict(x_test))
+        self.true_pred[model_name] = (y_test, grid_search.best_estimator_.predict(x_test))
         predict_time = perf_counter() - predict_time_start
         self.times[model_name] = (fit_time, predict_time)
+
+    def _get_param_grid(self, row, model_name):
+        param_grid = {}
+        h_layout = self.alg_chooser.table.cellWidget(row, 1).layout()
+        for v_layout in h_layout.children():
+            for i in range(v_layout.count()):
+                widget = v_layout.itemAt(i).widget()
+                if isinstance(widget, QComboBox):
+                    if widget.currentText() == 'auto':
+                        param_grid[widget.objectName()] = hyperparams[model_name[:-1]][widget.objectName()]
+                    else:
+                        param_grid[widget.objectName()] = [widget.currentText()]
+                if isinstance(widget, QLineEdit):
+                    if widget.text() == '':
+                        param_grid[widget.objectName()] = hyperparams[model_name[:-1]][widget.objectName()]['range']
+                    else:
+                        param_grid[widget.objectName()] = [int(widget.text())]
+        return param_grid
 
     def perform_testing(self):
         if not self.first:

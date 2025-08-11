@@ -17,10 +17,10 @@ algs = {
 hyperparams = {
     'SVM': {'kernel': ['linear', 'poly', 'rbf', 'sigmoid']},
     'KNN': {'n_neighbors': {'range': list(range(2, 101)), 'default': 5}},
-    'DecisionTree': {'criterion': ['gini', 'entropy', 'log_loss'], 'max_depth': {'range': list(range(5, 1001, 5)),
+    'DecisionTree': {'criterion': ['gini', 'entropy', 'log_loss'], 'max_depth': {'range': list(range(5, 201, 5)),
                                                                                  'default': 100}},
-    'RandomForest': {'n_estimators': {'range': list(range(50, 1001, 10)), 'default': 100},
-                     'criterion': ['gini', 'entropy', 'log_loss'], 'max_depth': {'range': list(range(5, 1001, 5)),
+    'RandomForest': {'n_estimators': {'range': list(range(50, 201, 10)), 'default': 100},
+                     'criterion': ['gini', 'entropy', 'log_loss'], 'max_depth': {'range': list(range(5, 201, 5)),
                                                                                  'default': 100}},
     'LogReg': {},
     'Precedence': {'kernel': ['pos', 'neg', 'mean']}

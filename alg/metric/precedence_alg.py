@@ -1,8 +1,9 @@
 import numpy as np
 import pandas as pd
+from sklearn.base import BaseEstimator, ClassifierMixin
 
 
-class PrecedenceAlg:
+class PrecedenceAlg(BaseEstimator, ClassifierMixin):
     def __init__(self, kernel='pos'):
         assert kernel in ('pos', 'neg', 'mean')
         self.kernel = kernel
@@ -12,7 +13,6 @@ class PrecedenceAlg:
         self.a = np.ndarray(0)
         self.d = 0
         self.x_test = np.ndarray(0)
-        self.is_fit = False
 
     def fit(self, x_train: pd.DataFrame, y_train: pd.Series):
         self.class_count = y_train.nunique()
@@ -34,10 +34,8 @@ class PrecedenceAlg:
                     for i in range(j + 1, len(split_x[cls])):
                         s_vals[cls][j][i] = self._s(self.a[cls], split_x[cls][j], split_x[cls][i], a_sum[cls])
             self.d = s_vals.max()
-        self.is_fit = True
 
     def predict(self, x_test: pd.DataFrame):
-        assert self.is_fit
         self.x_test = x_test.to_numpy()
         a_sum = self.a.sum(1)
         y_pred = []
