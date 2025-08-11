@@ -5,10 +5,11 @@ from ui.widgets.pipeline import Pipeline
 
 
 class MainWindow(QWidget):
-    def __init__(self):
+    def __init__(self, screen_size):
         super().__init__()
         self.setWindowTitle('NoIT')
         self.showMaximized()
+        self.screen_size = screen_size
         self.stacked_widget = QStackedWidget(self)
         self.file_loader = CsvDropZone(self._open_pipeline)
         self.stacked_widget.addWidget(self.file_loader)
@@ -18,7 +19,7 @@ class MainWindow(QWidget):
         layout.addWidget(self.stacked_widget)
 
     def _open_pipeline(self, data, data_name: str):
-        self.pipeline = Pipeline(self, data, data_name)
+        self.pipeline = Pipeline(self, data, data_name, self.screen_size)
         self.stacked_widget.addWidget(self.pipeline)
         self.stacked_widget.setCurrentWidget(self.pipeline)
 

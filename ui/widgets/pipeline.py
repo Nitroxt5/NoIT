@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QRectF, QPoint, QTimer, Qt, QPropertyAnimation
+from PyQt5.QtCore import QRectF, QPoint, QTimer, Qt, QPropertyAnimation, QSize
 from PyQt5.QtGui import QColor, QPainter, QBrush, QPen
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QGraphicsScene, QGraphicsView, QGraphicsEllipseItem,
                              QGraphicsDropShadowEffect)
@@ -12,14 +12,15 @@ from alg.report_maker import Reporter
 
 
 class Pipeline(QWidget):
-    def __init__(self, parent, data, data_name: str):
+    def __init__(self, parent, data, data_name: str, screen_size: QSize):
         super().__init__(parent)
         layout = QVBoxLayout(self)
-        self.scene_width = self.parent().width() - 80
-        self.scene = QGraphicsScene(0, 0, self.scene_width, self.parent().height() - 100)
+        self.scene_width = screen_size.width() - 80
+        self.scene_height = screen_size.height() - 160
+        self.scene = QGraphicsScene(0, 0, self.scene_width, self.scene_height)
         self.scene.setBackgroundBrush(QColor(22, 22, 35))
         self.view = QGraphicsView(self.scene)
-        self.view.setFixedSize(self.scene_width, self.parent().height() - 60)
+        self.view.setFixedSize(self.scene_width, self.scene_height + 40)
         self.view.setStyleSheet(scroll_bar_style)
         self.view.setRenderHint(QPainter.Antialiasing)
         layout.addWidget(self.view, alignment=Qt.AlignLeft)
