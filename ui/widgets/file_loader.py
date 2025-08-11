@@ -3,7 +3,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from PyQt5.QtWidgets import (
     QLabel, QPushButton, QWidget, QFileDialog,
-    QVBoxLayout, QTableWidget, QTableWidgetItem, QHeaderView, QApplication
+    QVBoxLayout, QTableWidget, QTableWidgetItem, QHeaderView
 )
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QFontMetrics
@@ -34,14 +34,10 @@ class CsvDropZone(QWidget):
         self.continue_btn = QPushButton('Continue')
         self.continue_btn.clicked.connect(self._on_continue)
         self._enable_buttons(False)
-        self.exit_btn = QPushButton('Exit')
-        self.exit_btn.clicked.connect(QApplication.exit)
-        self.exit_btn.setStyleSheet('background-color: rgb(150, 47, 47);')
         self.layout = QVBoxLayout(self)
         self.layout.addWidget(self.label)
         self.layout.addWidget(self.table)
         self.layout.addWidget(self.continue_btn)
-        self.layout.addWidget(self.exit_btn)
 
     def _adapt_table_width(self):
         for col in range(self.table.columnCount()):
