@@ -12,14 +12,14 @@ from alg.report_maker import Reporter
 
 
 class Pipeline(QWidget):
-    def __init__(self, data, data_name: str):
-        super().__init__()
+    def __init__(self, parent, data, data_name: str):
+        super().__init__(parent)
         layout = QVBoxLayout(self)
-        self.scene_width = 1919
-        self.scene = QGraphicsScene(0, 0, self.scene_width, 1300)
+        self.scene_width = self.parent().width() - 80
+        self.scene = QGraphicsScene(0, 0, self.scene_width, self.parent().height() - 100)
         self.scene.setBackgroundBrush(QColor(22, 22, 35))
         self.view = QGraphicsView(self.scene)
-        self.view.setSceneRect(self.scene.sceneRect())
+        self.view.setFixedSize(self.scene_width, self.parent().height() - 60)
         self.view.setStyleSheet(scroll_bar_style)
         self.view.setRenderHint(QPainter.Antialiasing)
         layout.addWidget(self.view, alignment=Qt.AlignLeft)

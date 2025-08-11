@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QPoint, QThread, pyqtSignal
+from PyQt5.QtCore import QPoint, QThread, pyqtSignal, QSize
 from PyQt5.QtWidgets import QGraphicsProxyWidget, QGraphicsItem, QPushButton, QComboBox, QLineEdit
 from sklearn.model_selection import train_test_split, GridSearchCV
 from time import perf_counter
@@ -59,13 +59,15 @@ class Tester(QThread):
         if not self.first:
             return True
         self.first = False
+        size = self.pipeline.view.size()
+        size = QSize(size.width() - 200, size.height() - 200)
         pos = self.pipeline.view.mapToScene(self.pipeline.view.viewport().rect().topLeft())
-        pos = QPoint(pos.x() + 150, pos.y() + 1300)
+        pos = QPoint(pos.x() + 100, pos.y() + size.height() + 100)
         next_btn = QPushButton('Next')
         next_btn.clicked.connect(lambda: self._on_click(lambda: None,
                                                         f'{self.alg_chooser.algs_count} algorithms were chosen',
                                                         next_btn.text()))
-        self.alg_chooser = AlgChooser([next_btn], self.pipeline.parent().parent(), pos=pos)
+        self.alg_chooser = AlgChooser([next_btn], self.pipeline.parent().parent(), size, pos)
         self.alg_chooser.show_animated(self.pipeline.view.horizontalScrollBar())
         proxy = QGraphicsProxyWidget()
         proxy.setWidget(self.alg_chooser)
