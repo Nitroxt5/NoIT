@@ -61,10 +61,13 @@ class DraggableTable(QTableWidget):
                 self.removeCellWidget(target_row, col)
                 new_source_widget, new_target_widget = QWidget(), QWidget()
                 new_source_widget.setLayout(target_widget.layout())
+                new_source_widget.setStyleSheet('border: none; border-radius: 0px')
                 new_target_widget.setLayout(source_widget.layout())
+                new_target_widget.setStyleSheet('border: none; border-radius: 0px')
                 self.setCellWidget(source_row, col, new_source_widget)
                 self.setCellWidget(target_row, col, new_target_widget)
 
         self._update_button(source_row)
         self._update_button(target_row)
+        self.resizeRowsToContents()
         event.accept()
