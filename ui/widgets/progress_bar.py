@@ -15,10 +15,12 @@ class ProgressBar(AnimatedWindow):
         self.progress.setRange(0, 100)
         self.progress.setVisible(False)
         self.progress.setStyleSheet(progress_bar_style)
-        self.progress.valueChanged.connect(self._check_completion)
 
-    def _check_completion(self, value):
+    def check_completion(self, value, text):
+        self.typing_timer.stop()
+        self.progress.setValue(value)
         if value != self.progress.maximum():
+            self.label.setText(f'{self.text}\n{text}')
             return
         self.progress.setVisible(False)
         self.layout.removeWidget(self.progress)

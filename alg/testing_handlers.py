@@ -11,7 +11,7 @@ from alg.algs_list import algs, hyperparams
 
 
 class Tester(QThread):
-    progress_changed = pyqtSignal(int)
+    progress_changed = pyqtSignal(int, str)
 
     def __init__(self, pipeline):
         super().__init__()
@@ -48,7 +48,7 @@ class Tester(QThread):
                      pos.y() + self.pipeline.steps[self.pipeline.current].y() - self.pipeline.node_radius)
         self.progress_bar = ProgressBar(buttons, self.pipeline.parent().parent(), start_text, end_text, pos=pos,
                                         on_success_callback=self.start)
-        self.progress_changed.connect(self.progress_bar.progress.setValue)
+        self.progress_changed.connect(self.progress_bar.check_completion)
         self.progress_bar.show_animated(self.pipeline.view.horizontalScrollBar())
         proxy = QGraphicsProxyWidget()
         proxy.setWidget(self.progress_bar)
@@ -122,8 +122,14 @@ class Tester(QThread):
     def run(self):
         x_train, x_test, y_train, y_test = train_test_split(self.pipeline.eda.data, self.pipeline.eda.target,
                                                             test_size=0.2, random_state=19)
+        if self.alg_chooser.algs_count != 0:
+            self.progress_changed.emit(0, f'Currently testing {self.alg_chooser.table.item(0, 0).text()}...')
         for row in range(self.alg_chooser.algs_count):
             self._test_alg(row, x_train, x_test, y_train, y_test)
-            self.progress_changed.emit(ceil((row + 1) / self.alg_chooser.algs_count * 100))
+            if row == self.alg_chooser.algs_count - 1:
+                text = ''
+            else:
+                text = f'Currently testing {self.alg_chooser.table.item(row + 1, 0).text()}...'
+            self.progress_changed.emit(ceil((row + 1) / self.alg_chooser.algs_count * 100), text)
         if self.alg_chooser.algs_count == 0:
-            self.progress_changed.emit(self.progress_bar.progress.maximum())
+            self.progress_changed.emit(self.progress_bar.progress.maximum(), '')
