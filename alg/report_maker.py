@@ -3,16 +3,17 @@ import GPUtil
 import psutil
 
 from pathlib import Path
-
 from PyQt5.QtWidgets import QPushButton
 from sklearn.metrics import precision_recall_fscore_support, accuracy_score
+
+from ui.styles import report_style
 
 
 class Reporter:
     def __init__(self, pipeline):
         self.pipeline = pipeline
         self.first = True
-        self.report = '<!DOCTYPE html><html><body>'
+        self.report = '<!DOCTYPE html><html><body><div class="container">'
         self.column_names = ('Algorithm', 'Hyperparameters', 'Accuracy', 'Precision', 'Recall', 'F1-Score', 'Fit time',
                              'Predict time')
         self.report_getters = (self._get_device_info, self._get_dataset_info, self._get_results, self._get_best_algs,
@@ -25,7 +26,7 @@ class Reporter:
         self.first = False
         for report_getter in self.report_getters:
             self.report += report_getter()
-        self.report += '</body></html>'
+        self.report += '</div></body></html>'
         path = Path(f'reports\\{self.pipeline.data_name}_report.html')
         path.parent.mkdir(parents=True, exist_ok=True)
         with open(path, 'w', encoding='utf-8') as file:
@@ -45,10 +46,10 @@ class Reporter:
         text += f'Memory: {round(psutil.virtual_memory().total / 1024**3)}GB.<br>GPU: '
         for gpu in GPUtil.getGPUs():
             text += f'{gpu.name}.<br>'
-        return f'<p>{text}</p>'
+        return f'<h3>{text}</h3>'
 
     def _get_dataset_info(self):
-        text = (f'Testing on `{self.pipeline.data_name}` dataset.<br>'
+        text = (f'Testing on <em>{self.pipeline.data_name}</em> dataset.<br>'
                 f'Dataset consists of {len(self.pipeline.eda.data)} rows and '
                 f'{len(self.pipeline.eda.data.columns)} columns.')
         return f'<p>{text}</p>'
@@ -94,5 +95,4 @@ class Reporter:
 
     @staticmethod
     def _get_styles():
-        text = '<style> td { text-align: center; vertical-align: middle; } </style>'
-        return text
+        return f'<style>{report_style}</style>'

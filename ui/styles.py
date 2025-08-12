@@ -158,3 +158,55 @@ line_edit_style = """
         border-radius: 6px;
         padding: 4px 12px;
     }"""
+
+report_style = """
+    body {
+      background: linear-gradient(135deg, #e0f7fa, #fce4ec);
+      font-family: 'Segoe UI', sans-serif;
+      color: #333;
+      margin: 0;
+      padding: 2em;
+    }
+    .container {
+      backdrop-filter: blur(12px);
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 2em;
+      max-width: 1200px;
+      margin: auto;
+    }
+    h1, h2, h3 {
+      color: #444;
+      text-shadow: 0 1px 1px rgba(255, 255, 255, 0.6);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1em;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 0.75em;
+      text-align: center;
+      vertical-align: middle;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    th {
+      background-color: rgba(255, 255, 255, 0.6);
+      font-weight: bold;
+    }
+    tr:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+    a {
+      color: #0077cc;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+"""
