@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QTableWidget, QPushButton, QWidget
+from PyQt5.QtWidgets import QTableWidget, QPushButton, QWidget, QTableWidgetItem
 from PyQt5.QtCore import Qt, QMimeData, QByteArray
 from PyQt5.QtGui import QDrag
 
@@ -14,6 +14,7 @@ class DraggableTable(QTableWidget):
         self.setDropIndicatorShown(True)
         self.setSelectionBehavior(QTableWidget.SelectRows)
         self.setDragDropMode(QTableWidget.InternalMove)
+        self.verticalScrollBar().valueChanged.connect(self._update_widget_positions)
 
     def insert_row(self, row):
         self.insertRow(row)
@@ -23,11 +24,20 @@ class DraggableTable(QTableWidget):
         self.removeRow(row)
         self._update_buttons()
 
+    def _update_widget_positions(self):
+        for row in range(self.rowCount()):
+            for col in range(self.columnCount()):
+                widget = self.cellWidget(row, col)
+                if widget:
+                    rect = self.visualItemRect(self.item(row, col))
+                    widget.setGeometry(rect)
+
     def _update_button(self, r):
         btn = QPushButton('✖')
         btn.setStyleSheet(delete_button_style)
         btn.clicked.connect(lambda _, row=r: self.remove_row(row))
         self.setCellWidget(r, self.columnCount() - 1, btn)
+        self.setItem(r, self.columnCount() - 1, QTableWidgetItem())
 
     def _update_buttons(self):
         for r in range(self.rowCount()):

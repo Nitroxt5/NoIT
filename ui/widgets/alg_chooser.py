@@ -66,6 +66,7 @@ class AlgChooser(AnimatedWindow):
         proxy.setStyleSheet('border: none; border-radius: 0px')
         proxy.setLayout(layout)
         self.table.setCellWidget(self.algs_count - 1, 1, proxy)
+        self.table.setItem(self.algs_count - 1, 1, QTableWidgetItem())
         self.table.resizeRowsToContents()
 
     def _create_contents(self, scroll_bar):
