@@ -16,14 +16,16 @@ class Reporter:
         self.report = '<!DOCTYPE html><html><body><div class="container">'
         self.column_names = ('Algorithm', 'Hyperparameters', 'Accuracy', 'Precision', 'Recall', 'F1-Score', 'Fit time',
                              'Predict time')
-        self.report_getters = (self._get_device_info, self._get_dataset_info, self._get_results, self._get_best_algs,
-                               self._get_styles)
+        self.report_getters = (self._get_device_info, self._get_dataset_info, self._get_operations_history,
+                               self._get_results, self._get_best_algs, self._get_styles)
         self.accuracy = {}
 
     def create_report(self):
         if not self.first:
             return True
         self.first = False
+        info = f'Report `{self.pipeline.data_name}_report.html` is done. It can be seen in `reports` folder.'
+        self.pipeline.history.append((info, 'End'))
         for report_getter in self.report_getters:
             self.report += report_getter()
         self.report += '</div></body></html>'
@@ -31,8 +33,7 @@ class Reporter:
         path.parent.mkdir(parents=True, exist_ok=True)
         with open(path, 'w', encoding='utf-8') as file:
             file.write(self.report)
-        self._create_info_window(f'Report `{self.pipeline.data_name}_report.html` is done. '
-                                 f'It can be seen in `reports` folder.')
+        self._create_info_window(info)
         return False
 
     def _create_info_window(self, info=''):
@@ -46,7 +47,7 @@ class Reporter:
         text += f'Memory: {round(psutil.virtual_memory().total / 1024**3)}GB.<br>GPU: '
         for gpu in GPUtil.getGPUs():
             text += f'{gpu.name}.<br>'
-        return f'<h3>{text}</h3>'
+        return f'<p>{text}</p>'
 
     def _get_dataset_info(self):
         text = (f'Testing on <em>{self.pipeline.data_name}</em> dataset.<br>'
@@ -54,19 +55,28 @@ class Reporter:
                 f'{len(self.pipeline.eda.data.columns)} columns.')
         return f'<p>{text}</p>'
 
+    def _get_operations_history(self):
+        text = '<h3>Operations history:</h3>'
+        text += f'<table border="1"><tr><th>Action</th><th>Decision</th></tr>'
+        for action, decision in self.pipeline.history:
+            text += f'<tr><td>{action}</td><td>{decision}</td></tr>'
+        return f'{text}</table>'
+
     def _get_results(self):
-        text = f'<table border="1"><tr>'
+        text = '<h3>Results:</h3>'
+        text += f'<table border="1"><tr>'
         for col in self.column_names:
             text += f'<th>{col}</th>'
         text += '</tr>'
         for alg in self.pipeline.tester.true:
-            text += f'<tr><td>{alg}</td>'
+            text += f'<tr><td>{alg}</td><td>'
             self.accuracy[alg] = accuracy_score(self.pipeline.tester.true[alg], self.pipeline.tester.pred[alg])
             precision, recall, f1, _ = precision_recall_fscore_support(self.pipeline.tester.true[alg],
                                                                        self.pipeline.tester.pred[alg],
                                                                        average='macro', zero_division=0)
-            text += (f'<td>{self.pipeline.tester.params[alg]}</td>'
-                     f'<td>{self.accuracy[alg] * 100:.2f}%</td><td>{precision * 100:.2f}%</td>'
+            for param, value in self.pipeline.tester.params[alg].items():
+                text += f'{param}: <em>{value}</em><br>'
+            text += (f'</td><td>{self.accuracy[alg] * 100:.2f}%</td><td>{precision * 100:.2f}%</td>'
                      f'<td>{recall * 100:.2f}%</td><td>{f1 * 100:.2f}%</td>'
                      f'<td>{self.pipeline.tester.fit_time[alg]:.5f} s</td>'
                      f'<td>{self.pipeline.tester.pred_time[alg]:.5f} s</td></tr>')
@@ -91,7 +101,7 @@ class Reporter:
         for alg in best_time_algs:
             time_text += f'{alg}, '
         time_text = f'{time_text[:-2]}</b> with the time value of <b>{best_time:.5f} s</b>'
-        return f'<p>{accuracy_text + time_text}</p>'
+        return f'<h3>Best algorithms:</h3><p>{accuracy_text + time_text}</p>'
 
     @staticmethod
     def _get_styles():

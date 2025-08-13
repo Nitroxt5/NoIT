@@ -21,6 +21,7 @@ class EDA:
         self.ignored_unimportant_columns = []
 
     def _on_click(self, action, answer: str):
+        self.pipeline.history.append((self.dialog.text, answer))
         info = StaticInfo(self.pipeline.parent().parent(), self.dialog.text, answer, self.dialog.max_size,
                           self.dialog.pos())
         proxy = QGraphicsProxyWidget()

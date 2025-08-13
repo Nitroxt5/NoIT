@@ -45,6 +45,7 @@ class Pipeline(QWidget):
         self.fade_timer = QTimer()
         self.flow_line_timer = QTimer()
         self.scroll_animation = None
+        self.history = []
 
         for i in range(2 * len(data.columns) + 10):
             node = self._create_node(self.node_start_x + i * self.node_step, self.scene.height() // 2)

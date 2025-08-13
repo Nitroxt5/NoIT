@@ -35,6 +35,7 @@ class Tester(QThread):
         pos = QPoint(pos.x() + self.pipeline.steps[self.pipeline.current].x() -
                      self.pipeline.view.horizontalScrollBar().value(),
                      pos.y() + self.pipeline.steps[self.pipeline.current].y() - 310)
+        self.pipeline.history.append((text, answer))
         info = StaticInfo(self.pipeline.parent().parent(), text, answer, pos=pos)
         proxy = QGraphicsProxyWidget()
         proxy.setWidget(info)
