@@ -32,8 +32,13 @@ class AlgChooser(AnimatedWindow):
         self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeToContents)
         self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
 
-    def _add_alg(self):
-        alg_name = self.dropdown.currentText()
+        for i in range(self.dropdown.count()):
+            alg_name = self.dropdown.itemText(i)
+            self._add_alg(alg_name)
+
+    def _add_alg(self, alg_name=None):
+        if not isinstance(alg_name, str):
+            alg_name = self.dropdown.currentText()
         self.table.insert_row(self.algs_count)
 
         item = QTableWidgetItem(alg_name + str(self.possible_algs[alg_name]))
