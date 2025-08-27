@@ -2,6 +2,7 @@ import cpuinfo
 import GPUtil
 import psutil
 
+from datetime import datetime
 from pathlib import Path
 from PyQt5.QtWidgets import QPushButton
 from sklearn.metrics import precision_recall_fscore_support, accuracy_score
@@ -24,12 +25,12 @@ class Reporter:
         if not self.first:
             return True
         self.first = False
-        info = f'Report `{self.pipeline.data_name}_report.html` is done. It can be seen in `reports` folder.'
+        info = f'Report on `{self.pipeline.data_name}` is done. It can be seen in `reports` folder.'
         self.pipeline.history.append((info, 'End'))
         for report_getter in self.report_getters:
             self.report += report_getter()
         self.report += '</div></body></html>'
-        path = Path(f'reports\\{self.pipeline.data_name}_report.html')
+        path = Path(f'reports\\{self.pipeline.data_name}_{datetime.now().strftime("%Y_%m_%d_%H_%M_%S")}.html')
         path.parent.mkdir(parents=True, exist_ok=True)
         with open(path, 'w', encoding='utf-8') as file:
             file.write(self.report)
