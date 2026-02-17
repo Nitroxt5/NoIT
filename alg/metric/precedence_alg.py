@@ -14,10 +14,13 @@ class PrecedenceAlg(BaseEstimator, ClassifierMixin):
         self.d = 0
         self.x_test = np.ndarray(0)
 
-    def fit(self, x_train: pd.DataFrame, y_train: pd.Series):
+    def _prepare_data(self, x_train: pd.DataFrame, y_train: pd.Series):
         self.class_count = y_train.nunique()
         self.x = x_train.to_numpy()
         self.y = y_train.to_numpy()
+
+    def fit(self, x_train: pd.DataFrame, y_train: pd.Series):
+        self._prepare_data(x_train, y_train)
         split_x = np.ndarray((self.class_count,), dtype=np.ndarray)
         for i in range(self.class_count):
             split_x[i] = self.x[self.y == i]
