@@ -144,8 +144,8 @@ class EDA:
             return True
         self.first = False
         self.dropdown.addItems(self.data.columns)
-        self.dropdown.currentIndexChanged.connect(lambda: self._on_click(self._on_target_selection,
-                                                                         self.dropdown.currentText()))
+        self.dropdown.activated.connect(lambda: self._on_click(self._on_target_selection,
+                                                               self.dropdown.currentText()))
         self.create_dialog_window([self.dropdown], 'Choose a target variable:', mode='dropdown')
         return False
 
