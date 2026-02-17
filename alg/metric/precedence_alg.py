@@ -21,10 +21,29 @@ class PrecedenceAlg(BaseEstimator, ClassifierMixin):
         split_x = np.ndarray((self.class_count,), dtype=np.ndarray)
         for i in range(self.class_count):
             split_x[i] = self.x[self.y == i]
+
         b = np.ndarray((self.class_count, len(self.x[0])))
         for i in range(self.class_count):
             b[i] = split_x[i].sum(0) / len(split_x[i])
         avg = b.sum(0) / self.class_count
+        # avg = self.x.sum(0) / len(self.x)
+
+        # m1 = np.ndarray((self.class_count, len(self.x[0])))
+        # for i in range(self.class_count):
+        #     m1[i] = split_x[i].sum(0)
+        # m = np.ndarray((self.class_count,))
+        # for i in range(self.class_count):
+        #     m[i] = len(split_x[i])
+        # b = np.ndarray((self.class_count, len(self.x[0])))
+        # if self.class_count == 2:
+        #     b[0] = (m[1] + m1[0] - m1[1]) / (m[0] + m[1])
+        #     b[1] = (m[0] + m1[1] - m1[0]) / (m[0] + m[1])
+        #     avg = np.full(b[0].shape, 0.5)
+        # else:
+        #     for i in range(self.class_count):
+        #         b[i] = (m.sum() - m[i] + m1[i] - m1.sum(0) + m1[i]) / m.sum()
+        #     avg = ((self.class_count - 1) * m.sum() - (self.class_count - 2) * m1.sum(0)) / self.class_count / m.sum()
+
         self.a = np.abs(b - avg)
         if self.kernel == 'mean':
             a_sum = self.a.sum(1)
