@@ -7,6 +7,8 @@ def encode_data(data: pd.DataFrame):
     data = data.convert_dtypes()
     columns = data.columns
     for col in columns:
+        if data[col].isin([0, 1]).all():
+            continue
         if pd.api.types.is_numeric_dtype(data[col].dtype):
             data = _binary_encoding(data, col)
             continue
