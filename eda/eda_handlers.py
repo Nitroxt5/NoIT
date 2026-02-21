@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QPushButton, QComboBox, QGraphicsProxyWidget, QGraph
 
 from ui.widgets.dialog_window import AnimatedDialog
 from ui.widgets.static_info import StaticInfo
-from eda.encoding_handlers import encode_data
+from eda.encoding_handlers import encode_data, encode_target
 
 
 class EDA:
@@ -153,6 +153,7 @@ class EDA:
         choice = self.dropdown.currentText()
         self.target = self.data[choice]
         self.data.drop(choice, axis=1, inplace=True)
+        self.target = encode_target(self.target)
 
     def handle_encoding(self):
         if not self.first:

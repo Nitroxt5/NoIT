@@ -47,3 +47,12 @@ def _label_encoding(data: pd.DataFrame, col: str):
     else:
         data[col] = data[col].map({value: label for label, value in enumerate(data[col].unique())})
     return data
+
+
+def encode_target(target: pd.Series):
+    if pd.api.types.is_float_dtype(target.dtype):
+        decimal_places_count = count_max_decimal_places(target)
+        target *= 10 ** decimal_places_count
+        target = target.astype('int64')
+    target = target.map({value: label for label, value in enumerate(target.unique())})
+    return target.convert_dtypes()
