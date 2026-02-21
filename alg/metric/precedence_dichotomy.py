@@ -31,10 +31,15 @@ class PrecedenceDichotomyAlg(BaseEstimator, ClassifierMixin):
         self.root = None
         self.res = 0
 
-    def _prepare_data(self, x_train: pd.DataFrame, y_train: pd.Series):
+    def _prepare_data_pd(self, x_train: pd.DataFrame, y_train: pd.Series):
         self.class_count = y_train.nunique()
         self.x = x_train.to_numpy()
         self.y = y_train.to_numpy()
+
+    def _prepare_data_np(self, x_train: np.ndarray, y_train: np.ndarray):
+        self.class_count = len(np.unique(y_train))
+        self.x = x_train.copy()
+        self.y = y_train.copy()
 
     def _build_tree(self, root: Node):
         if root is None:
@@ -83,8 +88,13 @@ class PrecedenceDichotomyAlg(BaseEstimator, ClassifierMixin):
                         s_vals[cls][j][i] = self._s(node.a[cls], node.split_x[cls][j], node.split_x[cls][i], a_sum[cls])
             node.d = s_vals.max()
 
-    def fit(self, x_train: pd.DataFrame, y_train: pd.Series):
-        self._prepare_data(x_train, y_train)
+    def fit(self, x_train: [pd.DataFrame, np.ndarray], y_train: [pd.Series, np.ndarray]):
+        if isinstance(x_train, pd.DataFrame) and isinstance(y_train, pd.Series):
+            self._prepare_data_pd(x_train, y_train)
+        elif isinstance(x_train, np.ndarray) and isinstance(y_train, np.ndarray):
+            self._prepare_data_np(x_train, y_train)
+        else:
+            raise TypeError(f'x_train or y_train is of an unappropriate type: {type(x_train)}, {type(y_train)}')
         self.root = Node(0, self.class_count - 1)
         self._build_tree(self.root)
 
@@ -116,8 +126,13 @@ class PrecedenceDichotomyAlg(BaseEstimator, ClassifierMixin):
                 self.res = node.R
             self._predict_el(node.right, x)
 
-    def predict(self, x_test: pd.DataFrame):
-        self.x_test = x_test.to_numpy()
+    def predict(self, x_test: [pd.DataFrame, np.ndarray]):
+        if isinstance(x_test, pd.DataFrame):
+            self.x_test = x_test.to_numpy()
+        elif isinstance(x_test, np.ndarray):
+            self.x_test = x_test.copy()
+        else:
+            raise TypeError(f'x_test is of an unappropriate type: {type(x_test)}')
         y_pred = []
         for x in self.x_test:
             self._predict_el(self.root, x)
