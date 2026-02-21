@@ -54,5 +54,6 @@ def encode_target(target: pd.Series):
         decimal_places_count = count_max_decimal_places(target)
         target *= 10 ** decimal_places_count
         target = target.astype('int64')
-    target = target.map({value: label for label, value in enumerate(target.unique())})
+    sorted_unique = sorted(target.unique())
+    target = target.map({value: label for label, value in enumerate(sorted_unique)})
     return target.convert_dtypes()
