@@ -57,6 +57,22 @@ class PrecedenceAlg(BaseEstimator, ClassifierMixin):
                 b[i] = (m.sum() - m[i] + m1[i] - m1.sum(0) + m1[i]) / m.sum()
             avg = ((self.class_count - 1) * m.sum() - (self.class_count - 2) * m1.sum(0)) / self.class_count / m.sum()
 
+        # m1 = np.ndarray((self.class_count, len(self.x[0])))
+        # for i in range(self.class_count):
+        #     m1[i] = split_x[i].sum(0)
+        # m = np.ndarray((self.class_count, len(self.x[0])))
+        # for i in range(self.class_count):
+        #     m[i] = np.array([len(split_x[i]) for _ in range(len(self.x[0]))])
+        # b = np.ndarray((self.class_count, len(self.x[0])))
+        # if self.class_count == 2:
+        #     b[0] = (1 + m1[0] / m[0] - m1[1] / m[1]) / 2
+        #     b[1] = (1 + m1[1] / m[1] - m1[0] / m[0]) / 2
+        #     avg = np.full(b[0].shape, 0.5)
+        # else:
+        #     for i in range(self.class_count):
+        #         b[i] = ((self.class_count - 1) + 2 * m1[i] / m[i] - np.sum(m1 / m, axis=0)) / self.class_count
+        #     avg = 1 - 1 / self.class_count - (self.class_count - 2) / self.class_count / self.class_count * np.sum(m1 / m, axis=0)
+
         self.a = np.abs(b - avg)
         if self.kernel == 'mean':
             a_sum = self.a.sum(1)
