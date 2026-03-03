@@ -27,6 +27,9 @@ class PrecedenceDichotomyAlg(BaseEstimator, ClassifierMixin):
         self.class_count = 0
         self.x = np.ndarray(0)
         self.y = np.ndarray(0)
+        self.mapper = np.ndarray(0)
+        self.inv_mapper = np.ndarray(0)
+        self.remapped_y = np.ndarray(0)
         self.x_test = np.ndarray(0)
         self.root = None
         self.res = 0
@@ -55,11 +58,19 @@ class PrecedenceDichotomyAlg(BaseEstimator, ClassifierMixin):
         self._build_tree(root.right)
 
     def _split_data(self, node: Node):
+        np.random.seed(33)
+        self.mapper = np.arange(self.class_count)
+        np.random.shuffle(self.mapper)
+        self.inv_mapper = np.ndarray((self.class_count,), dtype=np.int64)
+        for i in range(self.class_count):
+            self.inv_mapper[self.mapper[i]] = i
+        print(self.mapper)
+        self.remapped_y = self.mapper[self.y]
         node.split_x = np.ndarray((2,), dtype=np.ndarray)
-        node.split_x[0] = self.x[(self.y >= node.L) & (self.y <= node.mid)]
-        node.split_x[1] = self.x[(self.y > node.mid) & (self.y <= node.R)]
-        node.x = self.x[(self.y >= node.L) & (self.y <= node.R)]
-        node.y = self.y[(self.y >= node.L) & (self.y <= node.R)]
+        node.split_x[0] = self.x[(self.remapped_y >= node.L) & (self.remapped_y <= node.mid)]
+        node.split_x[1] = self.x[(self.remapped_y > node.mid) & (self.remapped_y <= node.R)]
+        node.x = self.x[(self.remapped_y >= node.L) & (self.remapped_y <= node.R)]
+        node.y = self.remapped_y[(self.remapped_y >= node.L) & (self.remapped_y <= node.R)]
         node.y[node.y <= node.mid] = 0
         node.y[node.y > node.mid] = 1
         node.m1 = np.ndarray((2, len(node.x[0])))
@@ -74,7 +85,7 @@ class PrecedenceDichotomyAlg(BaseEstimator, ClassifierMixin):
 
         b = np.ndarray((2, len(node.x[0])))
         b[0] = (node.m[1] + node.m1[0] - node.m1[1]) / (node.m[0] + node.m[1])
-        b[1] = (node.m[0] + node.m1[1] - node.m1[0]) / (node.m[0] + node.m[1])
+        b[1] = 1 - b[0]
         avg = np.full(b[0].shape, 0.5)
 
         node.a = np.abs(b - avg)
@@ -137,7 +148,7 @@ class PrecedenceDichotomyAlg(BaseEstimator, ClassifierMixin):
         for x in self.x_test:
             self._predict_el(self.root, x)
             y_pred.append(self.res)
-        return np.array(y_pred)
+        return self.inv_mapper[np.array(y_pred)]
 
     def _s(self, a, x1, x2, a_sum):
         a_positive = a[x1 == x2]

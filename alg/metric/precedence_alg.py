@@ -50,7 +50,7 @@ class PrecedenceAlg(BaseEstimator, ClassifierMixin):
         b = np.ndarray((self.class_count, len(self.x[0])))
         if self.class_count == 2:
             b[0] = (m[1] + m1[0] - m1[1]) / (m[0] + m[1])
-            b[1] = (m[0] + m1[1] - m1[0]) / (m[0] + m[1])
+            b[1] = 1 - b[0]
             avg = np.full(b[0].shape, 0.5)
         else:
             for i in range(self.class_count):
