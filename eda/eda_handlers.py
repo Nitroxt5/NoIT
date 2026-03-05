@@ -48,7 +48,7 @@ class EDA:
         next_btn.clicked.connect(lambda: self._on_click(lambda: None, next_btn.text()))
         self.create_dialog_window([next_btn], info)
 
-    def handle_unimportant(self):
+    def handle_indexes(self):
         self.data = self.data.convert_dtypes()
         unique_counts = self.data.nunique()
         row_count = len(self.data)
@@ -65,10 +65,10 @@ class EDA:
                                                            yes_btn.text()))
             no_btn.clicked.connect(lambda: self._on_click(lambda: self.ignored_unimportant_columns.append(col),
                                                           no_btn.text()))
-            self.create_dialog_window([yes_btn, no_btn], f'Column `{col}` seems to be unimportant. Remove?')
+            self.create_dialog_window([yes_btn, no_btn], f'Column `{col}` seems to be an index. Remove?')
             return False
         if not self.unimportant_exists and self.first:
-            self._create_info_window('No unimportant columns found.')
+            self._create_info_window('No indexes found.')
             self.first = False
             return False
         return True
