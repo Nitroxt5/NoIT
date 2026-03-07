@@ -1,5 +1,5 @@
 from PyQt5.QtCore import QPoint, QSize
-from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout
+from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton
 
 from ui.styles import scroll_bar_style, dialog_button_style, combo_box_style
 from ui.widgets.animated_window import AnimatedWindow
@@ -27,3 +27,8 @@ class AnimatedDialog(AnimatedWindow):
         super()._create_contents(scroll_bar)
         self.layout.addLayout(self.button_box)
         self.button_box.setEnabled(True)
+        if self.button_box.count() == 1:
+            widget = self.button_box.itemAt(0).widget()
+            if isinstance(widget, QPushButton):
+                if widget.text() == 'Next':
+                    widget.click()

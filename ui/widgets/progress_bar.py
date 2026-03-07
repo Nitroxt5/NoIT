@@ -1,5 +1,5 @@
 from PyQt5.QtCore import QPoint, QSize
-from PyQt5.QtWidgets import QHBoxLayout, QProgressBar
+from PyQt5.QtWidgets import QHBoxLayout, QProgressBar, QPushButton
 
 from ui.styles import dialog_button_style, progress_bar_style
 from ui.widgets.animated_window import AnimatedWindow
@@ -31,6 +31,11 @@ class ProgressBar(AnimatedWindow):
             btn.setStyleSheet(dialog_button_style)
             h_layout.addWidget(btn)
         self.layout.addLayout(h_layout)
+        if h_layout.count() == 1:
+            widget = h_layout.itemAt(0).widget()
+            if isinstance(widget, QPushButton):
+                if widget.text() == 'Next':
+                    widget.click()
 
     def _create_contents(self, scroll_bar):
         super()._create_contents(scroll_bar)
