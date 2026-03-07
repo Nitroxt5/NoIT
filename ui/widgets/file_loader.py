@@ -59,7 +59,11 @@ class CsvDropZone(QWidget):
         plt.figure(figsize=(12, 12))
         plt.xticks(fontsize=16)
         plt.yticks(fontsize=16)
-        sns.histplot(x=column, data=self.df)
+        ax = sns.histplot(x=column, data=self.df)
+        for container in ax.containers:
+            heights = [h.get_height() for h in container]
+            labels = [f'{h:.0f}' if h > 0 else '' for h in heights]
+            ax.bar_label(container, labels=labels, padding=3, fontsize=18)
         plt.title(column, fontsize=24)
         plt.xlabel(column, fontsize=20)
         plt.ylabel('Count', fontsize=20)
