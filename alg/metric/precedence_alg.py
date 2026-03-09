@@ -4,9 +4,11 @@ from sklearn.base import BaseEstimator, ClassifierMixin
 
 
 class PrecedenceAlg(BaseEstimator, ClassifierMixin):
-    def __init__(self, kernel='pos'):
+    def __init__(self, variant='1', kernel='pos'):
         assert kernel in ('pos', 'neg', 'mean')
+        assert variant in ('1', '2', '3', '4')
         self.kernel = kernel
+        self.variant = variant
         self.class_count = 0
         self.x = np.ndarray(0)
         self.y = np.ndarray(0)
@@ -35,43 +37,47 @@ class PrecedenceAlg(BaseEstimator, ClassifierMixin):
         for i in range(self.class_count):
             split_x[i] = self.x[self.y == i]
 
-        # b = np.ndarray((self.class_count, len(self.x[0])))
-        # for i in range(self.class_count):
-        #     b[i] = split_x[i].sum(0) / len(split_x[i])
-        # avg = b.sum(0) / self.class_count
-        # avg = self.x.sum(0) / len(self.x)
-
-        m1 = np.ndarray((self.class_count, len(self.x[0])))
-        for i in range(self.class_count):
-            m1[i] = split_x[i].sum(0)
-        m = np.ndarray((self.class_count,))
-        for i in range(self.class_count):
-            m[i] = len(split_x[i])
         b = np.ndarray((self.class_count, len(self.x[0])))
-        if self.class_count == 2:
-            b[0] = (m[1] + m1[0] - m1[1]) / (m[0] + m[1])
-            b[1] = 1 - b[0]
-            avg = np.full(b[0].shape, 0.5)
-        else:
+        avg = np.ndarray(0)
+        if self.variant == '1' or self.variant == '2':
             for i in range(self.class_count):
-                b[i] = (m.sum() - m[i] + m1[i] - m1.sum(0) + m1[i]) / m.sum()
-            avg = ((self.class_count - 1) * m.sum() - (self.class_count - 2) * m1.sum(0)) / self.class_count / m.sum()
+                b[i] = split_x[i].sum(0) / len(split_x[i])
+        if self.variant == '1':
+            avg = b.sum(0) / self.class_count
+        if self.variant == '2':
+            avg = self.x.sum(0) / len(self.x)
 
-        # m1 = np.ndarray((self.class_count, len(self.x[0])))
-        # for i in range(self.class_count):
-        #     m1[i] = split_x[i].sum(0)
-        # m = np.ndarray((self.class_count, len(self.x[0])))
-        # for i in range(self.class_count):
-        #     m[i] = np.array([len(split_x[i]) for _ in range(len(self.x[0]))])
-        # b = np.ndarray((self.class_count, len(self.x[0])))
-        # if self.class_count == 2:
-        #     b[0] = (1 + m1[0] / m[0] - m1[1] / m[1]) / 2
-        #     b[1] = (1 + m1[1] / m[1] - m1[0] / m[0]) / 2
-        #     avg = np.full(b[0].shape, 0.5)
-        # else:
-        #     for i in range(self.class_count):
-        #         b[i] = ((self.class_count - 1) + 2 * m1[i] / m[i] - np.sum(m1 / m, axis=0)) / self.class_count
-        #     avg = 1 - 1 / self.class_count - (self.class_count - 2) / self.class_count / self.class_count * np.sum(m1 / m, axis=0)
+        if self.variant == '3':
+            m1 = np.ndarray((self.class_count, len(self.x[0])))
+            for i in range(self.class_count):
+                m1[i] = split_x[i].sum(0)
+            m = np.ndarray((self.class_count,))
+            for i in range(self.class_count):
+                m[i] = len(split_x[i])
+            if self.class_count == 2:
+                b[0] = (m[1] + m1[0] - m1[1]) / (m[0] + m[1])
+                b[1] = 1 - b[0]
+                avg = np.full(b[0].shape, 0.5)
+            else:
+                for i in range(self.class_count):
+                    b[i] = (m.sum() - m[i] + m1[i] - m1.sum(0) + m1[i]) / m.sum()
+                avg = ((self.class_count - 1) * m.sum() - (self.class_count - 2) * m1.sum(0)) / self.class_count / m.sum()
+
+        if self.variant == '4':
+            m1 = np.ndarray((self.class_count, len(self.x[0])))
+            for i in range(self.class_count):
+                m1[i] = split_x[i].sum(0)
+            m = np.ndarray((self.class_count, len(self.x[0])))
+            for i in range(self.class_count):
+                m[i] = np.array([len(split_x[i]) for _ in range(len(self.x[0]))])
+            if self.class_count == 2:
+                b[0] = (1 + m1[0] / m[0] - m1[1] / m[1]) / 2
+                b[1] = 1 - b[0]
+                avg = np.full(b[0].shape, 0.5)
+            else:
+                for i in range(self.class_count):
+                    b[i] = ((self.class_count - 1) + 2 * m1[i] / m[i] - np.sum(m1 / m, axis=0)) / self.class_count
+                avg = 1 - 1 / self.class_count - (self.class_count - 2) / self.class_count / self.class_count * np.sum(m1 / m, axis=0)
 
         self.a = np.abs(b - avg)
         if self.kernel == 'mean':

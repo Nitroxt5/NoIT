@@ -64,7 +64,6 @@ class PrecedenceDichotomyAlg(BaseEstimator, ClassifierMixin):
         self.inv_mapper = np.ndarray((self.class_count,), dtype=np.int64)
         for i in range(self.class_count):
             self.inv_mapper[self.mapper[i]] = i
-        print(self.mapper)
         self.remapped_y = self.mapper[self.y]
         node.split_x = np.ndarray((2,), dtype=np.ndarray)
         node.split_x[0] = self.x[(self.remapped_y >= node.L) & (self.remapped_y <= node.mid)]

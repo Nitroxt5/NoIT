@@ -27,7 +27,7 @@ hyperparams = {
                      'criterion': ['gini', 'entropy', 'log_loss'], 'max_depth': {'range': list(range(5, 201, 5)),
                                                                                  'default': 100}},
     'LogReg': {},
-    'Prec': {'kernel': ['pos', 'neg', 'mean']},
+    'Prec': {'variant': ['1', '2', '3', '4'], 'kernel': ['pos', 'neg', 'mean']},
     'PrecDich': {'kernel': ['pos', 'neg', 'mean']},
     'PrecDichUpgr': {'kernel': ['pos', 'neg', 'mean']},
 }

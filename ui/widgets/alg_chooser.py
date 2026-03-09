@@ -52,7 +52,7 @@ class AlgChooser(AnimatedWindow):
             label.setStyleSheet('color: white; font-size: 25px; border: none; text-align: center; '
                                 'background: transparent')
             v_layout.addWidget(label, stretch=1)
-            if param == 'criterion' or param == 'kernel':
+            if param == 'criterion' or param == 'kernel' or param == 'variant':
                 dropdown = QComboBox()
                 dropdown.setObjectName(param)
                 dropdown.setMaxVisibleItems(8)
