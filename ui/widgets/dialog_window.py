@@ -23,12 +23,11 @@ class AnimatedDialog(AnimatedWindow):
             self.button_box.addWidget(btn)
         self.button_box.setEnabled(False)
 
-    def _create_contents(self, scroll_bar):
-        super()._create_contents(scroll_bar)
+    def _create_contents(self, scroll_bar, button_to_click=None):
+        super()._create_contents(scroll_bar, button_to_click)
         self.layout.addLayout(self.button_box)
         self.button_box.setEnabled(True)
-        if self.button_box.count() == 1:
-            widget = self.button_box.itemAt(0).widget()
+        if button_to_click is not None:
+            widget = self.button_box.itemAt(button_to_click).widget()
             if isinstance(widget, QPushButton):
-                if widget.text() == 'Next':
-                    widget.click()
+                widget.click()

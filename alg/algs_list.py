@@ -5,7 +5,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from alg.metric.precedence_alg import PrecedenceAlg
 from alg.metric.precedence_dichotomy import PrecedenceDichotomyAlg
-from alg.metric.precedence_dichotomy_upgraded import PrecedenceDichotomyUpgradedAlg
+# from alg.metric.precedence_dichotomy_upgraded import PrecedenceDichotomyUpgradedAlg
 
 algs = {
     'SVM': SVC,
@@ -15,7 +15,7 @@ algs = {
     'LogReg': LogisticRegression,
     'Prec': PrecedenceAlg,
     'PrecDich': PrecedenceDichotomyAlg,
-    'PrecDichUpgr': PrecedenceDichotomyUpgradedAlg
+    # 'PrecDichUpgr': PrecedenceDichotomyUpgradedAlg
 }
 
 hyperparams = {
@@ -29,5 +29,5 @@ hyperparams = {
     'LogReg': {},
     'Prec': {'variant': ['1', '2', '3', '4'], 'kernel': ['pos', 'neg', 'mean']},
     'PrecDich': {'kernel': ['pos', 'neg', 'mean']},
-    'PrecDichUpgr': {'kernel': ['pos', 'neg', 'mean']},
+    # 'PrecDichUpgr': {'kernel': ['pos', 'neg', 'mean']},
 }

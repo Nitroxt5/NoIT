@@ -37,8 +37,8 @@ class ProgressBar(AnimatedWindow):
                 if widget.text() == 'Next':
                     widget.click()
 
-    def _create_contents(self, scroll_bar):
-        super()._create_contents(scroll_bar)
+    def _create_contents(self, scroll_bar, button_to_click=None):
+        super()._create_contents(scroll_bar, button_to_click)
         self.layout.addWidget(self.progress)
         self.progress.setVisible(True)
         if self.on_success_callback:

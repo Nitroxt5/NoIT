@@ -69,7 +69,8 @@ class Tester(QThread):
                                                         f'{self.alg_chooser.algs_count} algorithms were chosen',
                                                         next_btn.text()))
         self.alg_chooser = AlgChooser([next_btn], self.pipeline.parent().parent(), size, pos)
-        self.alg_chooser.show_animated(self.pipeline.view.horizontalScrollBar())
+        button_to_click = 0 if self.pipeline.auto_mode else None
+        self.alg_chooser.show_animated(self.pipeline.view.horizontalScrollBar(), button_to_click)
         proxy = QGraphicsProxyWidget()
         proxy.setWidget(self.alg_chooser)
         self.pipeline.scene.addItem(proxy)

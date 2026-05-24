@@ -18,8 +18,8 @@ class MainWindow(QWidget):
         layout = QVBoxLayout(self)
         layout.addWidget(self.stacked_widget)
 
-    def _open_pipeline(self, data, data_name: str):
-        self.pipeline = Pipeline(self, data, data_name, self.screen_size)
+    def _open_pipeline(self, data, data_name: str, auto_mode: bool):
+        self.pipeline = Pipeline(self, data, data_name, self.screen_size, auto_mode)
         self.stacked_widget.addWidget(self.pipeline)
         self.stacked_widget.setCurrentWidget(self.pipeline)
 

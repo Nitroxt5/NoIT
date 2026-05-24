@@ -31,13 +31,14 @@ class EDA:
         action()
         self.pipeline.next_step()
 
-    def create_dialog_window(self, buttons: list, question='', size=QSize(400, 300), mode='horizontal'):
+    def create_dialog_window(self, buttons: list, question='', size=QSize(400, 300), mode='horizontal',
+                             button_to_click=None):
         pos = self.pipeline.view.mapToScene(self.pipeline.view.viewport().rect().topLeft())
         pos = QPoint(pos.x() + self.pipeline.steps[self.pipeline.current].x() -
                      self.pipeline.view.horizontalScrollBar().value(),
                      pos.y() + self.pipeline.steps[self.pipeline.current].y() - self.pipeline.node_radius)
         self.dialog = AnimatedDialog(buttons, self.pipeline.parent().parent(), question, size, pos, mode)
-        self.dialog.show_animated(self.pipeline.view.horizontalScrollBar())
+        self.dialog.show_animated(self.pipeline.view.horizontalScrollBar(), button_to_click)
         proxy = QGraphicsProxyWidget()
         proxy.setWidget(self.dialog)
         proxy.setFlags(QGraphicsItem.ItemIgnoresParentOpacity | QGraphicsItem.ItemIgnoresTransformations)
@@ -46,7 +47,7 @@ class EDA:
     def _create_info_window(self, info=''):
         next_btn = QPushButton('Next')
         next_btn.clicked.connect(lambda: self._on_click(lambda: None, next_btn.text()))
-        self.create_dialog_window([next_btn], info)
+        self.create_dialog_window([next_btn], info, button_to_click=0)
 
     def handle_indexes(self):
         self.data = self.data.convert_dtypes()
@@ -65,7 +66,9 @@ class EDA:
                                                            yes_btn.text()))
             no_btn.clicked.connect(lambda: self._on_click(lambda: self.ignored_unimportant_columns.append(col),
                                                           no_btn.text()))
-            self.create_dialog_window([yes_btn, no_btn], f'Column `{col}` seems to be an index. Remove?')
+            button_to_click = 1 if self.pipeline.auto_mode else None
+            self.create_dialog_window([yes_btn, no_btn], f'Column `{col}` seems to be an index. Remove?',
+                                      button_to_click=button_to_click)
             return False
         if not self.unimportant_exists and self.first:
             self._create_info_window('No indexes found.')
@@ -85,7 +88,9 @@ class EDA:
         no_btn = QPushButton('No')
         yes_btn.clicked.connect(lambda: self._on_click(lambda: self.data.drop_duplicates(inplace=True), yes_btn.text()))
         no_btn.clicked.connect(lambda: self._on_click(lambda: None, no_btn.text()))
-        self.create_dialog_window([yes_btn, no_btn], f'Detected {duplicates_count} duplicates. Remove?')
+        button_to_click = 0 if self.pipeline.auto_mode else None
+        self.create_dialog_window([yes_btn, no_btn], f'Detected {duplicates_count} duplicates. Remove?',
+                                  button_to_click=button_to_click)
         return False
 
     def handle_nulls(self):
@@ -108,11 +113,12 @@ class EDA:
                                                               fz_btn.text()))
                 fa_btn = QPushButton('Fill with average')
                 fa_btn.clicked.connect(lambda: self._on_click(lambda: self._fill_with_avg(col), fa_btn.text()))
-                buttons = [dc_btn, dr_btn, fz_btn, fa_btn, fr_btn]
+                buttons = [dc_btn, dr_btn, fr_btn, fz_btn, fa_btn]
             else:
                 buttons = [dc_btn, dr_btn, fr_btn]
+            button_to_click = 2 if self.pipeline.auto_mode else None
             self.create_dialog_window(buttons, f'{nulls_count[col]} empty values detected in column `{col}`. '
-                                               f'How to handle them?', QSize(400, 400), 'vertical')
+                                               f'How to handle them?', QSize(400, 400), 'vertical', button_to_click)
             return False
         if cols_with_empty_values.empty and self.first:
             self._create_info_window('No empty values found.')

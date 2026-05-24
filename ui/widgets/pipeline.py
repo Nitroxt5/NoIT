@@ -12,7 +12,7 @@ from alg.report_maker import Reporter
 
 
 class Pipeline(QWidget):
-    def __init__(self, parent, data, data_name: str, screen_size: QSize):
+    def __init__(self, parent, data, data_name: str, screen_size: QSize, auto_mode: bool):
         super().__init__(parent)
         layout = QVBoxLayout(self)
         self.scene_width = screen_size.width() - 80
@@ -25,6 +25,7 @@ class Pipeline(QWidget):
         self.view.setRenderHint(QPainter.Antialiasing)
         layout.addWidget(self.view, alignment=Qt.AlignLeft)
 
+        self.auto_mode = auto_mode
         self.data_name = data_name
         self.eda = EDA(data, self)
         self.tester = Tester(self)

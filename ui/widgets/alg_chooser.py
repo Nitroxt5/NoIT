@@ -1,7 +1,7 @@
 from PyQt5.QtCore import Qt, QPoint, QSize
 from PyQt5.QtGui import QIntValidator
 from PyQt5.QtWidgets import QLabel, QHBoxLayout, QComboBox, QTableWidgetItem, QHeaderView, QLineEdit, QWidget, \
-    QVBoxLayout
+    QVBoxLayout, QPushButton
 
 from ui.styles import scroll_bar_style, table_style, combo_box_style, dialog_button_style, line_edit_style
 from ui.widgets.animated_window import AnimatedWindow
@@ -74,7 +74,7 @@ class AlgChooser(AnimatedWindow):
         self.table.setItem(self.algs_count - 1, 1, QTableWidgetItem())
         self.table.resizeRowsToContents()
 
-    def _create_contents(self, scroll_bar):
+    def _create_contents(self, scroll_bar, button_to_click=None):
         super()._create_contents(scroll_bar)
         self.layout.addWidget(self.dropdown)
         self.layout.addWidget(self.table)
@@ -83,6 +83,10 @@ class AlgChooser(AnimatedWindow):
             btn_layout.addWidget(btn)
             btn.setStyleSheet(dialog_button_style)
         self.layout.addLayout(btn_layout)
+        if button_to_click is not None:
+            widget = btn_layout.itemAt(button_to_click).widget()
+            if isinstance(widget, QPushButton):
+                widget.click()
 
     @property
     def algs_count(self):

@@ -118,6 +118,12 @@ file_loader_style = """
         color: white;
         font-family: 'Segoe UI', sans-serif;
     }
+    
+    QCheckBox {
+        background-color: transparent;
+        color: black;
+        border: none;
+    }
 
     QLabel {
         font-size: 30px;

@@ -33,7 +33,7 @@ class AnimatedWindow(QWidget):
         painter.setPen(pen)
         painter.drawRoundedRect(self.rect().adjusted(1, 1, -2, -2), 12, 12)
 
-    def show_animated(self, scroll_bar):
+    def show_animated(self, scroll_bar, button_to_click=None):
         start_w, start_h = self.start_size.width(), self.start_size.height()
         mid_h = self.max_size.height()
         final_w = self.max_size.width()
@@ -61,7 +61,7 @@ class AnimatedWindow(QWidget):
 
         self.sequence.addAnimation(anim_up)
         self.sequence.addAnimation(anim_right)
-        self.sequence.finished.connect(lambda: self._create_contents(scroll_bar))
+        self.sequence.finished.connect(lambda: self._create_contents(scroll_bar, button_to_click))
         self.sequence.start()
 
     def _start_typing_effect(self):
@@ -77,7 +77,7 @@ class AnimatedWindow(QWidget):
         self.typing_timer.timeout.connect(type_next)
         self.typing_timer.start(30)
 
-    def _create_contents(self, scroll_bar):
+    def _create_contents(self, scroll_bar, button_to_click=None):
         self.setFixedWidth(self.max_size.width())
         self.layout.addWidget(self.label)
         self._start_typing_effect()

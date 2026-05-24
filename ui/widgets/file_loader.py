@@ -3,7 +3,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from PyQt5.QtWidgets import (
     QLabel, QPushButton, QWidget, QFileDialog,
-    QVBoxLayout, QTableWidget, QTableWidgetItem, QHeaderView
+    QVBoxLayout, QTableWidget, QTableWidgetItem, QHeaderView, QCheckBox
 )
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QFontMetrics
@@ -17,10 +17,14 @@ class CsvDropZone(QWidget):
         self.setAcceptDrops(True)
         self.on_success_callback = on_success_callback
         self.df = pd.DataFrame()
+        self.path = ''
 
         self.label = QLabel('Drop CSV here or click and choose it')
         self.label.setFont(QFont('Segoe UI', 11))
         self.label.setAlignment(Qt.AlignCenter)
+
+        self.auto_chk_box = QCheckBox('Auto mode')
+        self.auto_chk_box.setFont(QFont('Segoe UI', 11))
 
         self.setStyleSheet(file_loader_style + table_style + scroll_bar_style)
 
@@ -29,13 +33,14 @@ class CsvDropZone(QWidget):
         self.table.verticalHeader().setDefaultSectionSize(28)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
         self.table.horizontalHeader().sectionClicked.connect(self._draw_distribution)
-        self._enable_table(False)
-        self.path = ''
+
         self.continue_btn = QPushButton('Continue')
         self.continue_btn.clicked.connect(self._on_continue)
-        self._enable_buttons(False)
+        self._enable_elements(False)
+
         self.layout = QVBoxLayout(self)
         self.layout.addWidget(self.label)
+        self.layout.addWidget(self.auto_chk_box, alignment=Qt.AlignRight)
         self.layout.addWidget(self.table)
         self.layout.addWidget(self.continue_btn)
 
@@ -71,7 +76,8 @@ class CsvDropZone(QWidget):
 
     def _on_continue(self):
         if self.on_success_callback:
-            self.on_success_callback(self.df, self.path.split("/")[-1].rpartition('.')[0])
+            self.on_success_callback(self.df, self.path.split("/")[-1].rpartition('.')[0],
+                                     self.auto_chk_box.isChecked())
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -113,6 +119,15 @@ class CsvDropZone(QWidget):
         self.table.setEnabled(value)
         self.table.setVisible(value)
 
+    def _enable_checkbox(self, value: bool):
+        self.auto_chk_box.setEnabled(value)
+        self.auto_chk_box.setVisible(value)
+
+    def _enable_elements(self, value: bool):
+        self._enable_table(value)
+        self._enable_buttons(value)
+        self._enable_checkbox(value)
+
     def _load_csv(self, path):
         self.path = path
         try:
@@ -144,6 +159,7 @@ class CsvDropZone(QWidget):
 
             self.label.setText(f'File: {self.path.split("/")[-1]}')
             self._enable_buttons(True)
+            self._enable_checkbox(True)
             self._adapt_table_width()
         except Exception as e:
             self.label.setText(f'Error: {e}')
